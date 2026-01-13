@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Northeast Backcountry Skiing - Snow Conditions</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Real-time snow conditions for backcountry skiing tours across New England and New York">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="background-color" content="#0a0a0f">
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shreather">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="384x384" href="icons/icon-384.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="icons/icon-512.png">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+    <style>
+        :root {
+            /* Dark mode (default) */
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --bg-input: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #00d4ff;
+            --accent-purple: #7b2cbf;
+            --accent-pink: #ff6b9d;
+            --accent-red: #ff6b6b;
+            --accent-yellow: #ffd93d;
+            --accent-green: #4ade80;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --modal-bg: rgba(0, 0, 0, 0.85);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(0, 0, 0, 0.03);
+            --bg-card-hover: rgba(0, 0, 0, 0.06);
+            --bg-input: rgba(0, 0, 0, 0.05);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --accent-blue: #0099cc;
+            --accent-purple: #6b21a8;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --modal-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .icon-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .last-updated {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 12px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            font-size: 1rem;
+            width: 280px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            border-color: transparent;
+        }
+
+        .sort-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 1.4rem;
+            margin: 35px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+        }
+
+        /* Tour Grid */
+        .tours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tour Card */
+        .tour-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tour-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            box-shadow: 0 12px 40px var(--shadow);
+            border-color: var(--accent-blue);
+        }
+
+        .tour-card .favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.2s ease;
+            padding: 5px;
+        }
+
+        .tour-card:hover .favorite-btn {
+            opacity: 0.7;
+        }
+
+        .tour-card .favorite-btn.favorited,
+        .tour-card .favorite-btn:hover {
+            opacity: 1;
+        }
+
+        .tour-card .favorite-btn.favorited {
+            color: var(--accent-yellow);
+        }
+
+        .tour-header {
+            margin-bottom: 15px;
+            padding-right: 35px;
+        }
+
+        .tour-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .tour-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .tour-location {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .tour-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .tour-badge.book {
+            background: rgba(123, 44, 191, 0.2);
+            color: #c792ea;
+        }
+
+        .tour-badge.gba {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .tour-badge.elevation {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+        }
+
+        .tour-badge.vertical {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+        }
+
+        /* Weather Data */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .weather-item {
+            background: var(--bg-secondary);
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .weather-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .weather-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .weather-value.snow { color: var(--accent-blue); }
+        .weather-value.depth { color: var(--accent-purple); }
+        .weather-value.temp { color: var(--accent-red); }
+        .weather-value.wind { color: var(--accent-yellow); }
+
+        /* Forecast Row */
+        .forecast-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .forecast-day {
+            flex: 1;
+            min-width: 45px;
+            background: var(--bg-secondary);
+            padding: 8px 4px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .forecast-day-name {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .forecast-snow {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-top: 3px;
+        }
+
+        .click-hint {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tour-card:hover .click-hint {
+            opacity: 1;
+        }
+
+        .loading {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-subtitle {
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-red);
+            color: white;
+            border-color: var(--accent-red);
+        }
+
+        .modal-body {
+            padding: 25px 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 30px;
+        }
+
+        .modal-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Current Conditions in Modal */
+        .current-conditions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .condition-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .condition-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .condition-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .condition-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Hourly Forecast */
+        .hourly-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .hourly-item {
+            flex: 0 0 auto;
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 14px;
+            text-align: center;
+            min-width: 80px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hourly-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .hourly-temp {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .hourly-snow {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            margin-top: 4px;
+        }
+
+        .hourly-wind {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Daily Forecast */
+        .daily-forecast {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .daily-item {
+            display: grid;
+            grid-template-columns: 100px 1fr repeat(4, 80px);
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            gap: 15px;
+        }
+
+        .daily-day {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .daily-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .daily-bar {
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .daily-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 3px;
+        }
+
+        .daily-value {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .daily-value.snow {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .daily-value.rain {
+            color: var(--accent-pink);
+        }
+
+        .daily-value.temp {
+            color: var(--text-primary);
+        }
+
+        .daily-value.wind {
+            color: var(--accent-yellow);
+        }
+
+        .daily-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Location Info */
+        .location-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .info-value a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-controls {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+
+            .tours-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-btn {
+                flex: 1;
+            }
+
+            .weather-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .daily-item {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .daily-bar {
+                display: none;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .current-conditions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* iOS PWA Safe Areas */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+        }
+
+        /* iOS Standalone Mode */
+        .ios-standalone header {
+            padding-top: calc(20px + env(safe-area-inset-top, 20px));
+        }
+
+        .ios-standalone .modal {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* Offline indicator */
+        .offline::before {
+            content: 'You are offline - showing cached data';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--accent-yellow);
+            color: black;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            z-index: 9999;
+        }
+
+        .offline .container {
+            margin-top: 40px;
+        }
+
+        /* Pull to refresh hint for PWA */
+        .ios-standalone .last-updated::after {
+            content: ' - Pull down to refresh';
+            opacity: 0.6;
+        }
+
+        /* Install prompt styles */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-prompt h3 {
+            margin-bottom: 10px;
+            color: var(--accent-blue);
+        }
+
+        .install-prompt p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .install-prompt .steps {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .install-prompt .steps li {
+            margin: 8px 0;
+            color: var(--text-primary);
+        }
+
+        .install-prompt button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .install-prompt .dismiss {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-controls">
+                <button class="icon-btn" id="favorites-toggle" title="Show favorites only">
+                    <span>&#9733;</span>
+                </button>
+                <button class="icon-btn" id="theme-toggle" title="Toggle dark/light mode">
+                    <span id="theme-icon">&#9788;</span>
+                </button>
+            </div>
+            <h1>Northeast Backcountry Skiing</h1>
+            <p class="subtitle">Real-time snow conditions for classic tours and glades across New England and New York</p>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-tours">0</div>
+                    <div class="stat-label">Total Tours</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="snow-tours">0</div>
+                    <div class="stat-label">With Snow</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="best-snow">0"</div>
+                    <div class="stat-label">Best Depth</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="favorites-count">0</div>
+                    <div class="stat-label">Favorites</div>
+                </div>
+            </div>
+            <p class="last-updated">Last updated: <span id="update-time">Loading...</span></p>
+        </header>
+
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="Search tours..." id="search-input">
+            <select class="sort-select" id="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="snow-desc">Most Snow Depth</option>
+                <option value="snow-asc">Least Snow Depth</option>
+                <option value="elevation-desc">Highest Elevation</option>
+                <option value="elevation-asc">Lowest Elevation</option>
+                <option value="forecast">Best Forecast</option>
+            </select>
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="book">Book Tours</button>
+            <button class="filter-btn" data-filter="gba">GBA Glades</button>
+            <button class="filter-btn" data-filter="nh">NH</button>
+            <button class="filter-btn" data-filter="vt">VT</button>
+            <button class="filter-btn" data-filter="me">ME</button>
+            <button class="filter-btn" data-filter="ny">NY</button>
+            <button class="filter-btn" data-filter="ma">MA</button>
+        </div>
+
+        <div id="tours-container"></div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="modal-title">Tour Name</h2>
+                    <p class="modal-subtitle" id="modal-subtitle">Location</p>
+                </div>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Data sources: <a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a> by David Goodman | <a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a></p>
+        <p style="margin-top: 10px;">Weather data from <a href="https://open-meteo.com/" target="_blank">Open-Meteo API</a> (free, open-source)</p>
+        <p style="margin-top: 15px; font-size: 0.8rem;">Snow depth estimates are modeled data and may not reflect actual conditions. Always check local reports and avalanche forecasts before heading out.</p>
+    </footer>
+
+    <!-- iOS Install Prompt -->
+    <div class="install-prompt" id="install-prompt">
+        <h3>Install Shreather App</h3>
+        <p>Add this app to your home screen for the best experience:</p>
+        <ol class="steps">
+            <li>Tap the <strong>Share</strong> button <span style="font-size: 1.2em;">&#8593;</span> at the bottom of Safari</li>
+            <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+            <li>Tap <strong>"Add"</strong> in the top right</li>
+        </ol>
+        <button class="dismiss" onclick="dismissInstallPrompt()">Got it!</button>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        const tours = [
+            // NEW HAMPSHIRE - Book Tours
+            { id: 1, name: "Mt. Cardigan", state: "NH", region: "Western NH", lat: 43.6497, lon: -71.9148, elevation: 3155, source: "book" },
+            { id: 2, name: "Mt. Monadnock", state: "NH", region: "Southern NH", lat: 42.8612, lon: -72.1092, elevation: 3165, source: "book" },
+            { id: 3, name: "Mt. Moosilauke", state: "NH", region: "Western Whites", lat: 44.0245, lon: -71.8309, elevation: 4802, source: "book" },
+            { id: 4, name: "Mt. Chocorua", state: "NH", region: "Sandwich Range", lat: 43.9542, lon: -71.2734, elevation: 3490, source: "book" },
+            { id: 5, name: "Cannon Mountain", state: "NH", region: "Franconia", lat: 44.1565, lon: -71.6984, elevation: 4080, source: "book" },
+            { id: 6, name: "Mt. Garfield", state: "NH", region: "Franconia", lat: 44.1870, lon: -71.6109, elevation: 4500, source: "book" },
+            { id: 7, name: "Carter Notch Hut Tours", state: "NH", region: "Carter Range", lat: 44.2592, lon: -71.1958, elevation: 3388, source: "book" },
+            { id: 8, name: "Wildcat Valley Trail", state: "NH", region: "Carter Range", lat: 44.2631, lon: -71.2392, elevation: 4422, source: "book" },
+            { id: 9, name: "Doublehead Ski Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, source: "book" },
+            { id: 10, name: "Avalanche Brook Trail", state: "NH", region: "Mt. Washington", lat: 44.2706, lon: -71.3033, elevation: 4000, source: "book" },
+            { id: 11, name: "Pinkham Notch Tours", state: "NH", region: "Mt. Washington", lat: 44.2572, lon: -71.2533, elevation: 2032, source: "book" },
+            { id: 12, name: "Gulf of Slides", state: "NH", region: "Mt. Washington", lat: 44.2567, lon: -71.2553, elevation: 4100, source: "book" },
+            { id: 13, name: "Sherburne Ski Trail", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 3950, source: "book" },
+            { id: 14, name: "Tuckerman Ravine", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 4400, source: "book" },
+            { id: 15, name: "Great Gulf", state: "NH", region: "Mt. Washington", lat: 44.2867, lon: -71.2850, elevation: 4000, source: "book" },
+            { id: 16, name: "Oakes Gulf", state: "NH", region: "Mt. Washington", lat: 44.2500, lon: -71.2917, elevation: 4600, source: "book" },
+            { id: 17, name: "Zealand Falls Hut Tour", state: "NH", region: "Pemigewasset", lat: 44.1956, lon: -71.4942, elevation: 2630, source: "book" },
+            { id: 18, name: "Zealand Notch Tours", state: "NH", region: "Pemigewasset", lat: 44.1900, lon: -71.4800, elevation: 2500, source: "book" },
+            { id: 19, name: "Pemigewasset River Tours", state: "NH", region: "Pemigewasset", lat: 44.1500, lon: -71.5500, elevation: 2000, source: "book" },
+            { id: 20, name: "Greeley Ponds", state: "NH", region: "Kancamagus", lat: 44.0167, lon: -71.5167, elevation: 2200, source: "book" },
+            { id: 21, name: "Easy Day Trips (White Mtns)", state: "NH", region: "White Mountains", lat: 44.2000, lon: -71.4000, elevation: 2500, source: "book" },
+
+            // VERMONT - Book Tours
+            { id: 22, name: "Stratton Pond", state: "VT", region: "Southern VT", lat: 43.0833, lon: -72.9333, elevation: 2600, source: "book" },
+            { id: 23, name: "Skyline Trail", state: "VT", region: "Southern VT", lat: 43.1500, lon: -72.9000, elevation: 3900, source: "book" },
+            { id: 24, name: "Mt. Moosalamoo", state: "VT", region: "Central VT", lat: 43.9333, lon: -73.0167, elevation: 2640, source: "book" },
+            { id: 25, name: "Breadloaf Wilderness/Norske Trail", state: "VT", region: "Central VT", lat: 43.9667, lon: -72.9500, elevation: 3800, source: "book" },
+            { id: 26, name: "Woodward Mountain Trail", state: "VT", region: "Central VT", lat: 44.0000, lon: -72.9000, elevation: 3100, source: "book" },
+            { id: 27, name: "Bolton-Trapp Trail", state: "VT", region: "Northern VT", lat: 44.4167, lon: -72.8667, elevation: 3200, source: "book" },
+            { id: 28, name: "Long Trail - Monroe Skyline", state: "VT", region: "Northern VT", lat: 44.3000, lon: -72.8500, elevation: 4000, source: "book" },
+            { id: 29, name: "Camel's Hump", state: "VT", region: "Northern VT", lat: 44.3194, lon: -72.8861, elevation: 4083, source: "book" },
+            { id: 30, name: "Lake Willoughby", state: "VT", region: "Northeast Kingdom", lat: 44.7500, lon: -72.0333, elevation: 2600, source: "book" },
+            { id: 31, name: "Big Jay", state: "VT", region: "Jay Peak", lat: 44.9500, lon: -72.5167, elevation: 3800, source: "book" },
+            { id: 32, name: "Bruce Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4393, source: "book" },
+            { id: 33, name: "Teardrop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: "book" },
+            { id: 34, name: "Skytop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: "book" },
+            { id: 35, name: "Steeple Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 3800, source: "book" },
+            { id: 36, name: "Nebraska Notch", state: "VT", region: "Mt. Mansfield", lat: 44.5000, lon: -72.8333, elevation: 2800, source: "book" },
+
+            // MAINE - Book Tours
+            { id: 37, name: "Acadia National Park", state: "ME", region: "Coastal Maine", lat: 44.3386, lon: -68.2733, elevation: 1530, source: "book" },
+            { id: 38, name: "Camden Hills State Park", state: "ME", region: "Midcoast Maine", lat: 44.2333, lon: -69.0667, elevation: 1380, source: "book" },
+            { id: 39, name: "Katahdin & Baxter State Park", state: "ME", region: "Northern Maine", lat: 45.9044, lon: -68.9214, elevation: 5269, source: "book" },
+            { id: 40, name: "100 Mile Wilderness", state: "ME", region: "Northern Maine", lat: 45.5000, lon: -69.2500, elevation: 2000, source: "book" },
+            { id: 41, name: "Grand Canyon of Maine", state: "ME", region: "Northern Maine", lat: 45.4833, lon: -69.4500, elevation: 1800, source: "book" },
+            { id: 42, name: "Maine Huts", state: "ME", region: "Western Maine", lat: 45.0833, lon: -70.2167, elevation: 2500, source: "book" },
+
+            // NEW YORK - Book Tours
+            { id: 43, name: "Jackrabbit Trail", state: "NY", region: "Adirondacks", lat: 44.2833, lon: -74.0000, elevation: 2000, source: "book" },
+            { id: 44, name: "Camp Peggy O'Brien Hut Tour", state: "NY", region: "Adirondacks", lat: 44.1167, lon: -74.0500, elevation: 2800, source: "book" },
+            { id: 45, name: "Wright Peak Ski Trail", state: "NY", region: "Adirondacks", lat: 44.1517, lon: -73.9808, elevation: 4580, source: "book" },
+            { id: 46, name: "Avalanche Pass & Lake Colden", state: "NY", region: "Adirondacks", lat: 44.1333, lon: -73.9667, elevation: 2800, source: "book" },
+            { id: 47, name: "Mt. Marcy", state: "NY", region: "Adirondacks", lat: 44.1128, lon: -73.9237, elevation: 5344, source: "book" },
+
+            // MASSACHUSETTS - Book Tours
+            { id: 48, name: "Thunderbolt Ski Trail", state: "MA", region: "Berkshires", lat: 42.6375, lon: -73.1667, elevation: 3491, source: "book" },
+
+            // GBA GLADES - New Hampshire
+            { id: 49, name: "The Pike Glades", state: "NH", region: "Pike", lat: 44.0500, lon: -71.9500, elevation: 2200, vertical: 1500, source: "gba", address: "2719 Mt Moosilauke Highway, Pike, NH" },
+            { id: 50, name: "Maple Villa Glade", state: "NH", region: "Intervale", lat: 44.0833, lon: -71.1167, elevation: 2200, vertical: 1700, source: "gba", address: "70 East Branch Road, Intervale, NH" },
+            { id: 51, name: "West Side Glade", state: "NH", region: "Bartlett", lat: 44.0667, lon: -71.3000, elevation: 1600, vertical: 600, source: "gba", address: "629 West Side Road, Bartlett, NH" },
+            { id: 52, name: "Ski Tow Glade", state: "NH", region: "Lancaster", lat: 44.4833, lon: -71.5667, elevation: 2000, vertical: 700, source: "gba", address: "Route 3, Prospect Street, Lancaster, NH" },
+            { id: 53, name: "PRKR MTN Glades", state: "NH", region: "Littleton", lat: 44.3000, lon: -71.7667, elevation: 1800, vertical: 400, source: "gba", address: "Scout Lot, Littleton, NH" },
+            { id: 54, name: "Baldface", state: "NH", region: "Chatham", lat: 44.2333, lon: -71.0000, elevation: 3000, vertical: 2500, source: "gba", address: "Baldface Circle Trail (Rt. 113), Chatham, NH" },
+            { id: 55, name: "Cooley-Jericho Glade", state: "NH", region: "Franconia", lat: 44.2167, lon: -71.7500, elevation: 2600, vertical: 800, source: "gba", address: "12 Trumpet Round Rd, Easton, NH" },
+            { id: 56, name: "Hypnosis Glade", state: "NH", region: "Madison", lat: 43.9000, lon: -71.1333, elevation: 1400, vertical: 400, source: "gba", address: "White Mountain Hypnosis Center, Madison, NH" },
+            { id: 57, name: "Bill Hill Glade", state: "NH", region: "Gorham", lat: 44.3833, lon: -71.1833, elevation: 1800, vertical: 600, source: "gba", address: "Bellevue Road, Gorham, NH" },
+            { id: 58, name: "Page Hill", state: "NH", region: "Tamworth", lat: 43.8500, lon: -71.2667, elevation: 1350, vertical: 350, source: "gba", address: "388 Page Hill Rd, Tamworth, NH" },
+
+            // GBA GLADES - Maine
+            { id: 59, name: "Black & White Glade", state: "ME", region: "Rumford", lat: 44.5500, lon: -70.5500, elevation: 2214, vertical: 1400, source: "gba", address: "East Andover Road at Black Mountain of Maine" },
+
+            // GBA CCC TRAILS
+            { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, source: "gba", address: "Jackson, NH" },
+            { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, source: "gba", address: "Jackson, NH" },
+            { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, source: "gba", address: "Pinkham Notch, NH" },
+            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, source: "gba", address: "Pinkham Notch, NH" }
+        ];
+
+        // ==================== STATE ====================
+        const weatherCache = new Map();
+        const tourWeatherData = new Map();
+        const CACHE_DURATION = 15 * 60 * 1000;
+        let favorites = JSON.parse(localStorage.getItem('backcountry-favorites') || '[]');
+        let showFavoritesOnly = false;
+        let currentTheme = localStorage.getItem('backcountry-theme') || 'dark';
+
+        // ==================== WEATHER API ====================
+        async function fetchWeather(lat, lon) {
+            const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+            const cached = weatherCache.get(cacheKey);
+
+            if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+                return cached.data;
+            }
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=7`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                weatherCache.set(cacheKey, { data, timestamp: Date.now() });
+                return data;
+            } catch (error) {
+                console.error('Weather fetch error:', error);
+                return null;
+            }
+        }
+
+        function processWeatherData(weather) {
+            if (!weather || !weather.hourly) return null;
+
+            const { hourly, daily } = weather;
+            const now = new Date();
+
+            let currentIndex = 0;
+            for (let i = 0; i < hourly.time.length; i++) {
+                if (new Date(hourly.time[i]) > now) {
+                    currentIndex = Math.max(0, i - 1);
+                    break;
+                }
+            }
+
+            // Current conditions
+            const current = {
+                temp: Math.round(hourly.temperature_2m[currentIndex] * 9/5 + 32),
+                humidity: hourly.relative_humidity_2m[currentIndex],
+                snowDepth: Math.round((hourly.snow_depth[currentIndex] || 0) * 39.37),
+                wind: Math.round(hourly.windspeed_10m[currentIndex] * 0.621),
+                gusts: Math.round((hourly.windgusts_10m[currentIndex] || 0) * 0.621),
+                visibility: Math.round((hourly.visibility[currentIndex] || 10000) / 1609.34),
+                weatherCode: hourly.weathercode[currentIndex]
+            };
+
+            // 24h totals
+            let snow24h = 0, rain24h = 0;
+            for (let i = currentIndex; i < Math.min(currentIndex + 24, hourly.snowfall.length); i++) {
+                snow24h += hourly.snowfall[i] || 0;
+                rain24h += hourly.rain[i] || 0;
+            }
+
+            // 7-day totals
+            let snow7d = 0;
+            if (daily && daily.snowfall_sum) {
+                daily.snowfall_sum.forEach(s => snow7d += s || 0);
+            }
+
+            // Hourly forecast (next 24 hours)
+            const hourlyForecast = [];
+            for (let i = currentIndex; i < Math.min(currentIndex + 24, hourly.time.length); i += 2) {
+                hourlyForecast.push({
+                    time: new Date(hourly.time[i]),
+                    temp: Math.round(hourly.temperature_2m[i] * 9/5 + 32),
+                    snow: Math.round((hourly.snowfall[i] || 0) / 2.54 * 10) / 10,
+                    rain: Math.round((hourly.rain[i] || 0) / 25.4 * 10) / 10,
+                    wind: Math.round(hourly.windspeed_10m[i] * 0.621),
+                    code: hourly.weathercode[i]
+                });
+            }
+
+            // Daily forecast
+            const dailyForecast = [];
+            if (daily && daily.time) {
+                for (let i = 0; i < daily.time.length; i++) {
+                    dailyForecast.push({
+                        date: new Date(daily.time[i]),
+                        tempMax: Math.round(daily.temperature_2m_max[i] * 9/5 + 32),
+                        tempMin: Math.round(daily.temperature_2m_min[i] * 9/5 + 32),
+                        snow: Math.round((daily.snowfall_sum[i] || 0) / 2.54 * 10) / 10,
+                        rain: Math.round((daily.rain_sum[i] || 0) / 25.4 * 10) / 10,
+                        wind: Math.round(daily.windspeed_10m_max[i] * 0.621),
+                        code: daily.weathercode[i]
+                    });
+                }
+            }
+
+            return {
+                current,
+                snow24h: Math.round(snow24h / 2.54 * 10) / 10,
+                rain24h: Math.round(rain24h / 25.4 * 10) / 10,
+                snow7d: Math.round(snow7d / 2.54 * 10) / 10,
+                hourlyForecast,
+                dailyForecast
+            };
+        }
+
+        function getWeatherIcon(code) {
+            const icons = {
+                0: '&#9728;', // Clear
+                1: '&#127780;', 2: '&#9925;', 3: '&#9729;', // Partly cloudy, cloudy
+                45: '&#127787;', 48: '&#127787;', // Fog
+                51: '&#127783;', 53: '&#127783;', 55: '&#127783;', // Drizzle
+                61: '&#127783;', 63: '&#127783;', 65: '&#127783;', // Rain
+                66: '&#127783;', 67: '&#127783;', // Freezing rain
+                71: '&#10052;', 73: '&#10052;', 75: '&#10052;', // Snow
+                77: '&#10052;', // Snow grains
+                80: '&#127783;', 81: '&#127783;', 82: '&#127783;', // Rain showers
+                85: '&#10052;', 86: '&#10052;', // Snow showers
+                95: '&#9889;', 96: '&#9889;', 99: '&#9889;' // Thunderstorm
+            };
+            return icons[code] || '&#9728;';
+        }
+
+        // ==================== UI RENDERING ====================
+        function renderTourCard(tour) {
+            const weather = tourWeatherData.get(tour.id);
+            const isFavorite = favorites.includes(tour.id);
+
+            const card = document.createElement('div');
+            card.className = 'tour-card';
+            card.dataset.id = tour.id;
+            card.dataset.state = tour.state.toLowerCase();
+            card.dataset.source = tour.source;
+            card.dataset.name = tour.name.toLowerCase();
+            card.dataset.elevation = tour.elevation;
+            card.dataset.snowDepth = weather?.current?.snowDepth || 0;
+            card.dataset.forecast = weather?.snow7d || 0;
+
+            let weatherHtml = '<div class="weather-grid"><p class="loading">Loading weather...</p></div>';
+            let forecastHtml = '';
+
+            if (weather) {
+                weatherHtml = `
+                    <div class="weather-grid">
+                        <div class="weather-item">
+                            <div class="weather-label">Snow Depth</div>
+                            <div class="weather-value depth">${weather.current.snowDepth}"</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">24h Snow</div>
+                            <div class="weather-value snow">${weather.snow24h}"</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Temp</div>
+                            <div class="weather-value temp">${weather.current.temp}°F</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Wind</div>
+                            <div class="weather-value wind">${weather.current.wind} mph</div>
+                        </div>
+                    </div>
+                `;
+
+                if (weather.dailyForecast.length > 0) {
+                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    forecastHtml = '<div class="forecast-row">';
+                    weather.dailyForecast.forEach(day => {
+                        forecastHtml += `
+                            <div class="forecast-day">
+                                <div class="forecast-day-name">${days[day.date.getDay()]}</div>
+                                <div class="forecast-snow">${day.snow}"</div>
+                            </div>
+                        `;
+                    });
+                    forecastHtml += '</div>';
+                }
+            }
+
+            const badges = [];
+            badges.push(`<span class="tour-badge ${tour.source}">${tour.source === 'gba' ? 'GBA' : 'Book'}</span>`);
+            badges.push(`<span class="tour-badge elevation">${tour.elevation.toLocaleString()} ft</span>`);
+            if (tour.vertical) {
+                badges.push(`<span class="tour-badge vertical">${tour.vertical} ft vert</span>`);
+            }
+
+            card.innerHTML = `
+                <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" onclick="toggleFavorite(event, ${tour.id})">
+                    ${isFavorite ? '&#9733;' : '&#9734;'}
+                </button>
+                <div class="tour-header">
+                    <div class="tour-name">${tour.name}</div>
+                    <div class="tour-location">${tour.region}, ${tour.state}</div>
+                    <div class="tour-meta">${badges.join('')}</div>
+                </div>
+                ${weatherHtml}
+                ${forecastHtml}
+                <div class="click-hint">Click for detailed forecast</div>
+            `;
+
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('favorite-btn')) {
+                    openModal(tour);
+                }
+            });
+
+            return card;
+        }
+
+        async function renderTours() {
+            const container = document.getElementById('tours-container');
+            container.innerHTML = '';
+
+            const stateGroups = {};
+            tours.forEach(tour => {
+                if (!stateGroups[tour.state]) stateGroups[tour.state] = [];
+                stateGroups[tour.state].push(tour);
+            });
+
+            const stateNames = {
+                'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
+                'NY': 'New York', 'MA': 'Massachusetts'
+            };
+
+            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA']) {
+                if (!stateGroups[state]) continue;
+
+                const section = document.createElement('div');
+                section.className = 'state-section';
+                section.dataset.state = state.toLowerCase();
+
+                const title = document.createElement('h2');
+                title.className = 'section-title';
+                title.innerHTML = `<span>&#9971;</span> ${stateNames[state]} <span style="font-size: 0.9rem; color: var(--text-muted);">(${stateGroups[state].length})</span>`;
+                section.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'tours-grid';
+
+                for (const tour of stateGroups[state]) {
+                    const card = renderTourCard(tour);
+                    grid.appendChild(card);
+
+                    // Fetch weather async
+                    fetchWeather(tour.lat, tour.lon).then(weather => {
+                        const processed = processWeatherData(weather);
+                        if (processed) {
+                            tourWeatherData.set(tour.id, processed);
+                            const newCard = renderTourCard(tour);
+                            card.replaceWith(newCard);
+                            updateStats();
+                        }
+                    });
+                }
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            }
+
+            document.getElementById('update-time').textContent = new Date().toLocaleString();
+            document.getElementById('total-tours').textContent = tours.length;
+            updateFavoritesCount();
+        }
+
+        // ==================== MODAL ====================
+        function openModal(tour) {
+            const weather = tourWeatherData.get(tour.id);
+            const modal = document.getElementById('modal-overlay');
+
+            document.getElementById('modal-title').textContent = tour.name;
+            document.getElementById('modal-subtitle').textContent = `${tour.region}, ${tour.state} · ${tour.elevation.toLocaleString()} ft elevation`;
+
+            let bodyHtml = '';
+
+            if (!weather) {
+                bodyHtml = '<div class="loading">Loading weather data...</div>';
+            } else {
+                // Current Conditions
+                bodyHtml += `
+                    <div class="modal-section">
+                        <h3 class="modal-section-title"><span>&#127777;</span> Current Conditions</h3>
+                        <div class="current-conditions">
+                            <div class="condition-card">
+                                <div class="condition-icon">${getWeatherIcon(weather.current.weatherCode)}</div>
+                                <div class="condition-value" style="color: var(--accent-purple);">${weather.current.snowDepth}"</div>
+                                <div class="condition-label">Snow Depth</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#10052;</div>
+                                <div class="condition-value" style="color: var(--accent-blue);">${weather.snow24h}"</div>
+                                <div class="condition-label">24h Snowfall</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#127777;</div>
+                                <div class="condition-value" style="color: var(--accent-red);">${weather.current.temp}°F</div>
+                                <div class="condition-label">Temperature</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#128168;</div>
+                                <div class="condition-value" style="color: var(--accent-yellow);">${weather.current.wind}</div>
+                                <div class="condition-label">Wind (mph)</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#127783;</div>
+                                <div class="condition-value" style="color: var(--accent-pink);">${weather.rain24h}"</div>
+                                <div class="condition-label">24h Rain</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#128167;</div>
+                                <div class="condition-value">${weather.current.humidity}%</div>
+                                <div class="condition-label">Humidity</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#128065;</div>
+                                <div class="condition-value">${weather.current.visibility}</div>
+                                <div class="condition-label">Visibility (mi)</div>
+                            </div>
+                            <div class="condition-card">
+                                <div class="condition-icon">&#127744;</div>
+                                <div class="condition-value">${weather.current.gusts}</div>
+                                <div class="condition-label">Gusts (mph)</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Hourly Forecast
+                if (weather.hourlyForecast.length > 0) {
+                    bodyHtml += `
+                        <div class="modal-section">
+                            <h3 class="modal-section-title"><span>&#128336;</span> Hourly Forecast (Next 24h)</h3>
+                            <div class="hourly-scroll">
+                    `;
+                    weather.hourlyForecast.forEach(hour => {
+                        const timeStr = hour.time.toLocaleTimeString('en-US', { hour: 'numeric' });
+                        bodyHtml += `
+                            <div class="hourly-item">
+                                <div class="hourly-time">${timeStr}</div>
+                                <div style="font-size: 1.2rem;">${getWeatherIcon(hour.code)}</div>
+                                <div class="hourly-temp">${hour.temp}°</div>
+                                ${hour.snow > 0 ? `<div class="hourly-snow">${hour.snow}" snow</div>` : ''}
+                                ${hour.rain > 0 ? `<div class="hourly-snow" style="color: var(--accent-pink);">${hour.rain}" rain</div>` : ''}
+                                <div class="hourly-wind">${hour.wind} mph</div>
+                            </div>
+                        `;
+                    });
+                    bodyHtml += '</div></div>';
+                }
+
+                // 7-Day Forecast
+                if (weather.dailyForecast.length > 0) {
+                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const maxSnow = Math.max(...weather.dailyForecast.map(d => d.snow), 1);
+
+                    bodyHtml += `
+                        <div class="modal-section">
+                            <h3 class="modal-section-title"><span>&#128197;</span> 7-Day Forecast (${weather.snow7d}" total snow)</h3>
+                            <div class="daily-forecast">
+                    `;
+
+                    weather.dailyForecast.forEach((day, i) => {
+                        const dayName = i === 0 ? 'Today' : days[day.date.getDay()];
+                        const dateStr = day.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        const barWidth = (day.snow / maxSnow) * 100;
+
+                        bodyHtml += `
+                            <div class="daily-item">
+                                <div>
+                                    <div class="daily-day">${dayName}</div>
+                                    <div class="daily-date">${dateStr}</div>
+                                </div>
+                                <div class="daily-bar">
+                                    <div class="daily-bar-fill" style="width: ${barWidth}%"></div>
+                                </div>
+                                <div class="daily-value snow">
+                                    ${day.snow}"
+                                    <div class="daily-label">Snow</div>
+                                </div>
+                                <div class="daily-value rain">
+                                    ${day.rain}"
+                                    <div class="daily-label">Rain</div>
+                                </div>
+                                <div class="daily-value temp">
+                                    ${day.tempMax}°/${day.tempMin}°
+                                    <div class="daily-label">Hi/Lo</div>
+                                </div>
+                                <div class="daily-value wind">
+                                    ${day.wind} mph
+                                    <div class="daily-label">Wind</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    bodyHtml += '</div></div>';
+                }
+            }
+
+            // Location Info
+            bodyHtml += `
+                <div class="modal-section">
+                    <h3 class="modal-section-title"><span>&#128205;</span> Location Details</h3>
+                    <div class="location-info">
+                        <div class="info-item">
+                            <div class="info-label">Coordinates</div>
+                            <div class="info-value">${tour.lat.toFixed(4)}, ${tour.lon.toFixed(4)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Elevation</div>
+                            <div class="info-value">${tour.elevation.toLocaleString()} ft</div>
+                        </div>
+                        ${tour.vertical ? `
+                        <div class="info-item">
+                            <div class="info-label">Vertical Drop</div>
+                            <div class="info-value">${tour.vertical.toLocaleString()} ft</div>
+                        </div>` : ''}
+                        ${tour.address ? `
+                        <div class="info-item">
+                            <div class="info-label">Trailhead</div>
+                            <div class="info-value">${tour.address}</div>
+                        </div>` : ''}
+                        <div class="info-item">
+                            <div class="info-label">Source</div>
+                            <div class="info-value">
+                                ${tour.source === 'gba'
+                                    ? '<a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a>'
+                                    : '<a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a>'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Map</div>
+                            <div class="info-value">
+                                <a href="https://www.google.com/maps?q=${tour.lat},${tour.lon}" target="_blank">Open in Google Maps</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-body').innerHTML = bodyHtml;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ==================== FAVORITES ====================
+        function toggleFavorite(event, id) {
+            event.stopPropagation();
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('backcountry-favorites', JSON.stringify(favorites));
+
+            // Update button
+            const btn = event.target;
+            btn.classList.toggle('favorited');
+            btn.innerHTML = favorites.includes(id) ? '&#9733;' : '&#9734;';
+
+            updateFavoritesCount();
+            if (showFavoritesOnly) applyFilters();
+        }
+
+        function updateFavoritesCount() {
+            document.getElementById('favorites-count').textContent = favorites.length;
+        }
+
+        // ==================== FILTERING & SORTING ====================
+        function applyFilters() {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            document.querySelectorAll('.tour-card').forEach(card => {
+                let show = true;
+                const id = parseInt(card.dataset.id);
+
+                if (showFavoritesOnly && !favorites.includes(id)) {
+                    show = false;
+                }
+
+                if (show && activeFilter !== 'all') {
+                    if (['nh', 'vt', 'me', 'ny', 'ma'].includes(activeFilter)) {
+                        show = card.dataset.state === activeFilter;
+                    } else {
+                        show = card.dataset.source === activeFilter;
+                    }
+                }
+
+                if (show && searchTerm) {
+                    show = card.dataset.name.includes(searchTerm);
+                }
+
+                card.style.display = show ? '' : 'none';
+            });
+
+            // Hide empty sections
+            document.querySelectorAll('.state-section').forEach(section => {
+                const hasVisible = Array.from(section.querySelectorAll('.tour-card')).some(c => c.style.display !== 'none');
+                section.style.display = hasVisible ? '' : 'none';
+            });
+
+            applySorting();
+        }
+
+        function applySorting() {
+            const sortBy = document.getElementById('sort-select').value;
+
+            document.querySelectorAll('.tours-grid').forEach(grid => {
+                const cards = Array.from(grid.querySelectorAll('.tour-card'));
+
+                cards.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'snow-desc':
+                            return parseFloat(b.dataset.snowDepth) - parseFloat(a.dataset.snowDepth);
+                        case 'snow-asc':
+                            return parseFloat(a.dataset.snowDepth) - parseFloat(b.dataset.snowDepth);
+                        case 'elevation-desc':
+                            return parseInt(b.dataset.elevation) - parseInt(a.dataset.elevation);
+                        case 'elevation-asc':
+                            return parseInt(a.dataset.elevation) - parseInt(b.dataset.elevation);
+                        case 'forecast':
+                            return parseFloat(b.dataset.forecast) - parseFloat(a.dataset.forecast);
+                        default: // name
+                            return a.dataset.name.localeCompare(b.dataset.name);
+                    }
+                });
+
+                cards.forEach(card => grid.appendChild(card));
+            });
+        }
+
+        // ==================== THEME ====================
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('backcountry-theme', theme);
+            document.getElementById('theme-icon').innerHTML = theme === 'dark' ? '&#9788;' : '&#9790;';
+        }
+
+        // ==================== STATS ====================
+        function updateStats() {
+            let withSnow = 0;
+            let bestDepth = 0;
+
+            tourWeatherData.forEach(weather => {
+                if (weather.current.snowDepth > 0) withSnow++;
+                if (weather.current.snowDepth > bestDepth) bestDepth = weather.current.snowDepth;
+            });
+
+            document.getElementById('snow-tours').textContent = withSnow;
+            document.getElementById('best-snow').textContent = bestDepth + '"';
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial theme
+            setTheme(currentTheme);
+
+            // Render tours
+            renderTours();
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', applyFilters);
+
+            // Sort
+            document.getElementById('sort-select').addEventListener('change', applySorting);
+
+            // Theme toggle
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+
+            // Favorites toggle
+            document.getElementById('favorites-toggle').addEventListener('click', () => {
+                showFavoritesOnly = !showFavoritesOnly;
+                document.getElementById('favorites-toggle').classList.toggle('active', showFavoritesOnly);
+                applyFilters();
+            });
+
+            // Modal close
+            document.getElementById('modal-close').addEventListener('click', closeModal);
+            document.getElementById('modal-overlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration.scope);
+
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content available, show refresh prompt
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            }
+
+            // Handle iOS standalone mode
+            if (window.navigator.standalone === true) {
+                document.body.classList.add('ios-standalone');
+            }
+
+            // Handle URL params for shortcuts
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('filter') === 'favorites') {
+                showFavoritesOnly = true;
+                document.getElementById('favorites-toggle').classList.add('active');
+                applyFilters();
+            }
+
+            // Show iOS install prompt if appropriate
+            showInstallPromptIfNeeded();
+        });
+
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            document.body.classList.remove('offline');
+            renderTours(); // Refresh data when back online
+        });
+
+        window.addEventListener('offline', () => {
+            document.body.classList.add('offline');
+        });
+
+        // iOS Install Prompt Functions
+        function showInstallPromptIfNeeded() {
+            // Only show on iOS Safari, not in standalone mode, and if not dismissed
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isInStandaloneMode = window.navigator.standalone === true;
+            const isDismissed = localStorage.getItem('install-prompt-dismissed');
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+            if (isIOS && isSafari && !isInStandaloneMode && !isDismissed) {
+                setTimeout(() => {
+                    document.getElementById('install-prompt').classList.add('show');
+                }, 3000); // Show after 3 seconds
+            }
+        }
+
+        function dismissInstallPrompt() {
+            document.getElementById('install-prompt').classList.remove('show');
+            localStorage.setItem('install-prompt-dismissed', 'true');
+        }
+    </script>
+</body>
+</html>

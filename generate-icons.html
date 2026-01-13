@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate App Icons</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        h1 { color: #00d4ff; }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .icon-item {
+            background: #0a0a0f;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .icon-item canvas {
+            border-radius: 20%;
+            margin-bottom: 10px;
+        }
+        .icon-item a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #00d4ff;
+            color: black;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .icon-item a:hover {
+            background: #00b8e6;
+        }
+        .instructions {
+            background: #0a0a0f;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+        #download-all {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #download-all:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate App Icons for Shreather</h1>
+
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click "Download All Icons" or download each size individually</li>
+            <li>Save all PNG files to the <code>icons/</code> folder in your project</li>
+            <li>The icons will be named icon-72.png, icon-96.png, etc.</li>
+        </ol>
+    </div>
+
+    <button id="download-all">Download All Icons</button>
+
+    <div class="icon-grid" id="icon-grid"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const s = size;
+            canvas.width = s;
+            canvas.height = s;
+
+            // Background gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, s, s);
+            bgGrad.addColorStop(0, '#0a0a0f');
+            bgGrad.addColorStop(1, '#1a1a2e');
+
+            // Accent gradient
+            const accentGrad = ctx.createLinearGradient(0, 0, s, s);
+            accentGrad.addColorStop(0, '#00d4ff');
+            accentGrad.addColorStop(1, '#7b2cbf');
+
+            // Draw rounded rectangle background
+            const radius = s * 0.2;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, s, s, radius);
+            ctx.fillStyle = bgGrad;
+            ctx.fill();
+
+            // Draw mountain
+            ctx.beginPath();
+            ctx.moveTo(s * 0.15, s * 0.75);
+            ctx.lineTo(s * 0.39, s * 0.35);
+            ctx.lineTo(s * 0.51, s * 0.51);
+            ctx.lineTo(s * 0.625, s * 0.31);
+            ctx.lineTo(s * 0.85, s * 0.75);
+            ctx.closePath();
+            ctx.fillStyle = accentGrad;
+            ctx.globalAlpha = 0.9;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Snow caps
+            ctx.fillStyle = 'white';
+            ctx.globalAlpha = 0.9;
+
+            // Left peak snow
+            ctx.beginPath();
+            ctx.moveTo(s * 0.39, s * 0.35);
+            ctx.lineTo(s * 0.45, s * 0.43);
+            ctx.lineTo(s * 0.39, s * 0.41);
+            ctx.lineTo(s * 0.33, s * 0.43);
+            ctx.closePath();
+            ctx.fill();
+
+            // Right peak snow
+            ctx.beginPath();
+            ctx.moveTo(s * 0.625, s * 0.31);
+            ctx.lineTo(s * 0.70, s * 0.41);
+            ctx.lineTo(s * 0.625, s * 0.38);
+            ctx.lineTo(s * 0.55, s * 0.41);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.globalAlpha = 1;
+
+            // Snowflakes
+            ctx.globalAlpha = 0.8;
+            drawSnowflake(ctx, s * 0.23, s * 0.23, s * 0.04);
+            drawSnowflake(ctx, s * 0.78, s * 0.20, s * 0.03);
+            drawSnowflake(ctx, s * 0.18, s * 0.55, s * 0.025);
+            drawSnowflake(ctx, s * 0.82, s * 0.49, s * 0.035);
+            ctx.globalAlpha = 1;
+        }
+
+        function drawSnowflake(ctx, x, y, r) {
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(x, y, r * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = r * 0.3;
+            ctx.lineCap = 'round';
+
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * 60) * Math.PI / 180;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + Math.cos(angle) * r, y + Math.sin(angle) * r);
+                ctx.stroke();
+            }
+        }
+
+        function createIconItem(size) {
+            const div = document.createElement('div');
+            div.className = 'icon-item';
+
+            const canvas = document.createElement('canvas');
+            drawIcon(canvas, size);
+
+            const label = document.createElement('div');
+            label.textContent = `${size}x${size}`;
+
+            const link = document.createElement('a');
+            link.textContent = 'Download';
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+
+            div.appendChild(canvas);
+            div.appendChild(label);
+            div.appendChild(link);
+
+            return { div, canvas, size };
+        }
+
+        const grid = document.getElementById('icon-grid');
+        const items = sizes.map(size => {
+            const item = createIconItem(size);
+            grid.appendChild(item.div);
+            return item;
+        });
+
+        document.getElementById('download-all').addEventListener('click', async () => {
+            for (const item of items) {
+                const link = document.createElement('a');
+                link.download = `icon-${item.size}.png`;
+                link.href = item.canvas.toDataURL('image/png');
+                link.click();
+                await new Promise(r => setTimeout(r, 300));
+            }
+        });
+    </script>
+</body>
+</html>

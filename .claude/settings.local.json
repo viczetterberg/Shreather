@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:bestbackcountryskiing.com)",
+      "WebFetch(domain:granitebackcountryalliance.org)",
+      "WebSearch",
+      "WebFetch(domain:open-meteo.com)",
+      "Bash(file:*)",
+      "Bash(wc:*)",
+      "Bash(apt list:*)",
+      "Bash(rsvg-convert:*)",
+      "Bash(cd:*)"
+    ]
+  }
+}
