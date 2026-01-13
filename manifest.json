@@ -2,7 +2,7 @@
   "name": "Northeast Backcountry Skiing",
   "short_name": "Shreather",
   "description": "Real-time snow conditions for backcountry skiing tours across New England and New York",
-  "start_url": "/index.html",
+  "start_url": "/Shreather",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#00d4ff",
@@ -62,7 +62,7 @@
   "shortcuts": [
     {
       "name": "View Favorites",
-      "url": "/index.html?filter=favorites",
+      "url": "/shreather?filter=favorites",
       "description": "View your favorite ski tours"
     }
   ]
