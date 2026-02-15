@@ -1306,7 +1306,7 @@
                 if (imageResult && imageResult.attributes) {
                     const pixelValue = parseFloat(imageResult.attributes['Service Pixel Value']);
                     if (!isNaN(pixelValue) && pixelValue >= 0) {
-                        const result = { snowDepth: Math.round(pixelValue) };
+                        const result = { snowDepth: Math.round(pixelValue * 39.37) };
                         snowDepthCache.set(cacheKey, { data: result, timestamp: Date.now() });
                         return result;
                     }
