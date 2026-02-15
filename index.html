@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Northeast Backcountry Skiing - Snow Conditions</title>
+    <title>Shreather — Ski Forecast</title>
 
     <!-- PWA Meta Tags -->
     <meta name="description" content="Real-time snow conditions for backcountry skiing tours across New England and New York">
@@ -423,10 +423,18 @@
         }
 
         .weather-item {
-            background: var(--bg-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 10px 6px;
             border-radius: 4px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .weather-item {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.05);
         }
 
         .weather-label {
@@ -601,11 +609,18 @@
         }
 
         .condition-card {
-            background: var(--bg-card);
+            background: rgba(255, 255, 255, 0.035);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 16px 12px;
             border-radius: var(--radius);
             text-align: center;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        [data-theme="light"] .condition-card {
+            background: rgba(0, 0, 0, 0.025);
+            border-color: rgba(0, 0, 0, 0.06);
         }
 
         .condition-icon {
@@ -766,6 +781,72 @@
         }
 
         .info-value a:hover { text-decoration: underline; }
+
+        /* ─── Modal Mini Map ─── */
+        .modal-map {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        /* ─── Daily Forecast Table ─── */
+        .forecast-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .forecast-table th {
+            text-align: left;
+            padding: 8px 10px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .forecast-table th:not(:first-child) {
+            text-align: right;
+        }
+
+        .forecast-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-family: var(--mono);
+            font-size: 0.78rem;
+        }
+
+        .forecast-table td:not(:first-child) {
+            text-align: right;
+        }
+
+        .forecast-table td:first-child {
+            font-family: var(--font);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .forecast-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .forecast-table .snow-val { color: var(--accent-blue); font-weight: 600; }
+        .forecast-table .rain-val { color: var(--accent-pink); }
+        .forecast-table .temp-val { color: var(--text-secondary); }
+        .forecast-table .wind-val { color: var(--accent-yellow); }
+
+        .forecast-table .snow-bar {
+            display: inline-block;
+            height: 3px;
+            background: var(--accent-blue);
+            border-radius: 1px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
 
         /* ─── Footer ─── */
         footer {
@@ -1066,8 +1147,8 @@
                     <span id="theme-icon">&#9788;</span>
                 </button>
             </div>
-            <h1>Northeast Backcountry Skiing</h1>
-            <p class="subtitle">Real-time snow conditions for classic tours and glades across New England and New York</p>
+            <h1>Shreather</h1>
+            <p class="subtitle">Ski forecast for backcountry tours, glades, and resorts across the Northeast</p>
             <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-value" id="total-tours">0</div>
@@ -1441,21 +1522,25 @@
             };
         }
 
-        function getWeatherIcon(code) {
+        function getWeatherIcon(code, size = 20) {
+            const s = size;
             const icons = {
-                0: '&#9728;', // Clear
-                1: '&#127780;', 2: '&#9925;', 3: '&#9729;', // Partly cloudy, cloudy
-                45: '&#127787;', 48: '&#127787;', // Fog
-                51: '&#127783;', 53: '&#127783;', 55: '&#127783;', // Drizzle
-                61: '&#127783;', 63: '&#127783;', 65: '&#127783;', // Rain
-                66: '&#127783;', 67: '&#127783;', // Freezing rain
-                71: '&#10052;', 73: '&#10052;', 75: '&#10052;', // Snow
-                77: '&#10052;', // Snow grains
-                80: '&#127783;', 81: '&#127783;', 82: '&#127783;', // Rain showers
-                85: '&#10052;', 86: '&#10052;', // Snow showers
-                95: '&#9889;', 96: '&#9889;', 99: '&#9889;' // Thunderstorm
+                clear: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+                cloud: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>`,
+                partcloud: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M17.66 17.66l1.41 1.41M2 12h2M6.34 17.66l-1.41 1.41M17.07 4.93l1.41-1.41"/><circle cx="12" cy="10" r="4"/><path d="M16 16h2a4 4 0 0 0 0-8h-.5A6 6 0 0 0 7 12.5 4 4 0 0 0 8 20h8"/></svg>`,
+                fog: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="8" x2="21" y2="8"/><line x1="5" y1="12" x2="19" y2="12"/><line x1="3" y1="16" x2="21" y2="16"/></svg>`,
+                rain: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M16 13V4a4 4 0 0 0-8 0v1H6a4 4 0 0 0 0 8h10a3 3 0 0 0 0-6z"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="17" x2="12" y2="19"/><line x1="16" y1="19" x2="16" y2="21"/></svg>`,
+                snow: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/></svg>`,
+                thunder: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>`
             };
-            return icons[code] || '&#9728;';
+            if (code === 0) return icons.clear;
+            if (code === 1) return icons.partcloud;
+            if (code === 2 || code === 3) return icons.cloud;
+            if (code === 45 || code === 48) return icons.fog;
+            if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return icons.rain;
+            if ((code >= 71 && code <= 77) || code === 85 || code === 86) return icons.snow;
+            if (code >= 95) return icons.thunder;
+            return icons.clear;
         }
 
         // ==================== UI RENDERING ====================
@@ -1628,45 +1713,45 @@
                         <h3 class="modal-section-title">Current Conditions</h3>
                         <div class="current-conditions">
                             <div class="condition-card">
-                                <div class="condition-icon">${getWeatherIcon(weather.current.weatherCode)}</div>
+                                <div class="condition-icon" style="color:var(--text-muted)">${getWeatherIcon(weather.current.weatherCode, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-purple);">${weather.current.snowDepth}"</div>
                                 <div class="condition-label">Snow Depth</div>
                                 ${weather.current.snowDepthSource === 'nohrsc'
-                                    ? '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:4px;">NOAA Snow Analysis</div>'
+                                    ? '<div style="font-size:0.6rem;color:var(--text-muted);margin-top:3px;">NOAA</div>'
                                     : ''}
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#10052;</div>
+                                <div class="condition-icon" style="color:var(--accent-blue)">${getWeatherIcon(71, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-blue);">${weather.snow24h}"</div>
                                 <div class="condition-label">24h Snowfall</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#127777;</div>
+                                <div class="condition-icon" style="color:var(--accent-red)">${getWeatherIcon(0, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-red);">${weather.current.temp}°F</div>
                                 <div class="condition-label">Temperature</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#128168;</div>
+                                <div class="condition-icon" style="color:var(--accent-yellow)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
                                 <div class="condition-value" style="color: var(--accent-yellow);">${weather.current.wind}</div>
                                 <div class="condition-label">Wind (mph)</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#127783;</div>
+                                <div class="condition-icon" style="color:var(--accent-pink)">${getWeatherIcon(61, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-pink);">${weather.rain24h}"</div>
                                 <div class="condition-label">24h Rain</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#128167;</div>
+                                <div class="condition-icon" style="color:var(--text-muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
                                 <div class="condition-value">${weather.current.humidity}%</div>
                                 <div class="condition-label">Humidity</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#128065;</div>
+                                <div class="condition-icon" style="color:var(--text-muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
                                 <div class="condition-value">${weather.current.visibility}</div>
                                 <div class="condition-label">Visibility (mi)</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon">&#127744;</div>
+                                <div class="condition-icon" style="color:var(--text-muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
                                 <div class="condition-value">${weather.current.gusts}</div>
                                 <div class="condition-label">Gusts (mph)</div>
                             </div>
@@ -1686,7 +1771,7 @@
                         bodyHtml += `
                             <div class="hourly-item">
                                 <div class="hourly-time">${timeStr}</div>
-                                <div style="font-size: 1.2rem;">${getWeatherIcon(hour.code)}</div>
+                                <div style="color: var(--text-muted);">${getWeatherIcon(hour.code, 18)}</div>
                                 <div class="hourly-temp">${hour.temp}°</div>
                                 ${hour.snow > 0 ? `<div class="hourly-snow">${hour.snow}" snow</div>` : ''}
                                 ${hour.rain > 0 ? `<div class="hourly-snow" style="color: var(--accent-pink);">${hour.rain}" rain</div>` : ''}
@@ -1699,70 +1784,65 @@
 
                 // 10-Day Forecast
                 if (weather.dailyForecast.length > 0) {
-                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                    const maxSnow = Math.max(...weather.dailyForecast.map(d => d.snow), 1);
+                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const maxSnow = Math.max(...weather.dailyForecast.map(d => d.snow), 0.1);
 
                     bodyHtml += `
                         <div class="modal-section">
-                            <h3 class="modal-section-title">10-Day Forecast (${weather.snow10d}" total snow)</h3>
-                            <div class="daily-forecast">
+                            <h3 class="modal-section-title">10-Day Forecast — ${weather.snow10d}" total snow</h3>
+                            <table class="forecast-table">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th></th>
+                                        <th>Snow</th>
+                                        <th>Rain</th>
+                                        <th>Hi / Lo</th>
+                                        <th>Wind</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                     `;
 
                     weather.dailyForecast.forEach((day, i) => {
                         const dayName = i === 0 ? 'Today' : days[day.date.getDay()];
                         const dateStr = day.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        const barWidth = (day.snow / maxSnow) * 100;
+                        const barW = Math.round((day.snow / maxSnow) * 40);
 
                         bodyHtml += `
-                            <div class="daily-item">
-                                <div>
-                                    <div class="daily-day">${dayName}</div>
-                                    <div class="daily-date">${dateStr}</div>
-                                </div>
-                                <div class="daily-bar">
-                                    <div class="daily-bar-fill" style="width: ${barWidth}%"></div>
-                                </div>
-                                <div class="daily-value snow">
-                                    ${day.snow}"
-                                    <div class="daily-label">Snow</div>
-                                </div>
-                                <div class="daily-value rain">
-                                    ${day.rain}"
-                                    <div class="daily-label">Rain</div>
-                                </div>
-                                <div class="daily-value temp">
-                                    ${day.tempMax}°/${day.tempMin}°
-                                    <div class="daily-label">Hi/Lo</div>
-                                </div>
-                                <div class="daily-value wind">
-                                    ${day.wind} mph
-                                    <div class="daily-label">Wind</div>
-                                </div>
-                            </div>
+                            <tr>
+                                <td>${dayName} <span style="color:var(--text-muted);font-size:0.72rem;">${dateStr}</span></td>
+                                <td style="color:var(--text-muted)">${getWeatherIcon(day.code, 16)}</td>
+                                <td class="snow-val">${day.snow > 0 ? `<span class="snow-bar" style="width:${barW}px"></span>${day.snow}"` : '—'}</td>
+                                <td class="rain-val">${day.rain > 0 ? day.rain + '"' : '—'}</td>
+                                <td class="temp-val">${day.tempMax}°/${day.tempMin}°</td>
+                                <td class="wind-val">${day.wind}</td>
+                            </tr>
                         `;
                     });
-                    bodyHtml += '</div></div>';
+                    bodyHtml += '</tbody></table></div>';
                 }
             }
 
-            // Location Info
+            // Location & Map
             bodyHtml += `
                 <div class="modal-section">
-                    <h3 class="modal-section-title">Location Details</h3>
+                    <h3 class="modal-section-title">Location</h3>
+                    <div id="modal-map" class="modal-map" style="margin-bottom:14px;"></div>
                     <div class="location-info">
                         <div class="info-item">
-                            <div class="info-label">Coordinates</div>
-                            <div class="info-value">${tour.lat.toFixed(4)}, ${tour.lon.toFixed(4)}</div>
-                        </div>
-                        <div class="info-item">
                             <div class="info-label">Elevation</div>
-                            <div class="info-value">${tour.elevation.toLocaleString()} ft</div>
+                            <div class="info-value" style="font-family:var(--mono)">${tour.elevation.toLocaleString()} ft</div>
                         </div>
                         ${tour.vertical ? `
                         <div class="info-item">
-                            <div class="info-label">Vertical Drop</div>
-                            <div class="info-value">${tour.vertical.toLocaleString()} ft</div>
+                            <div class="info-label">Vertical</div>
+                            <div class="info-value" style="font-family:var(--mono)">${tour.vertical.toLocaleString()} ft</div>
                         </div>` : ''}
+                        <div class="info-item">
+                            <div class="info-label">Coordinates</div>
+                            <div class="info-value" style="font-family:var(--mono)">${tour.lat.toFixed(4)}, ${tour.lon.toFixed(4)}</div>
+                        </div>
                         ${tour.address ? `
                         <div class="info-item">
                             <div class="info-label">Trailhead</div>
@@ -1778,13 +1858,13 @@
                                     if (s === 'epic') return '<a href="https://www.epicpass.com/" target="_blank">Epic Pass</a>';
                                     if (s === 'indy') return '<a href="https://www.indyskipass.com/" target="_blank">Indy Pass</a>';
                                     return s;
-                                }).join(' · ')}
+                                }).join(' &middot; ')}
                             </div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Map</div>
+                            <div class="info-label">Directions</div>
                             <div class="info-value">
-                                <a href="https://www.google.com/maps?q=${tour.lat},${tour.lon}" target="_blank">Open in Google Maps</a>
+                                <a href="https://www.google.com/maps/dir/?api=1&destination=${tour.lat},${tour.lon}" target="_blank">Open in Google Maps</a>
                             </div>
                         </div>
                     </div>
@@ -1794,9 +1874,25 @@
             document.getElementById('modal-body').innerHTML = bodyHtml;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            // Initialize modal mini-map
+            setTimeout(() => {
+                const mapEl = document.getElementById('modal-map');
+                if (mapEl && !mapEl._leaflet_id) {
+                    const miniMap = L.map(mapEl, { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false }).setView([tour.lat, tour.lon], 12);
+                    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 }).addTo(miniMap);
+                    L.marker([tour.lat, tour.lon]).addTo(miniMap);
+                    mapEl._miniMap = miniMap;
+                }
+            }, 100);
         }
 
         function closeModal() {
+            const mapEl = document.getElementById('modal-map');
+            if (mapEl && mapEl._miniMap) {
+                mapEl._miniMap.remove();
+                mapEl._miniMap = null;
+            }
             document.getElementById('modal-overlay').classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -1826,8 +1922,24 @@
         }
 
         // ==================== FILTERING & SORTING ====================
+        const stateFilters = ['nh', 'vt', 'me', 'ny', 'ma', 'pa'];
+
+        function getActiveFilters() {
+            const active = Array.from(document.querySelectorAll('.filter-btn.active')).map(b => b.dataset.filter);
+            return active.includes('all') ? ['all'] : active;
+        }
+
+        function matchesFilters(activeFilters, cardState, cardSources) {
+            if (activeFilters.includes('all')) return true;
+            const stateActive = activeFilters.filter(f => stateFilters.includes(f));
+            const sourceActive = activeFilters.filter(f => !stateFilters.includes(f));
+            let stateMatch = stateActive.length === 0 || stateActive.includes(cardState);
+            let sourceMatch = sourceActive.length === 0 || sourceActive.some(f => cardSources.includes(f));
+            return stateMatch && sourceMatch;
+        }
+
         function applyFilters() {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const activeFilters = getActiveFilters();
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
             document.querySelectorAll('.tour-card').forEach(card => {
@@ -1838,12 +1950,9 @@
                     show = false;
                 }
 
-                if (show && activeFilter !== 'all') {
-                    if (['nh', 'vt', 'me', 'ny', 'ma', 'pa'].includes(activeFilter)) {
-                        show = card.dataset.state === activeFilter;
-                    } else {
-                        show = card.dataset.source.split(',').includes(activeFilter);
-                    }
+                if (show) {
+                    const sources = card.dataset.source.split(',');
+                    show = matchesFilters(activeFilters, card.dataset.state, sources);
                 }
 
                 if (show && searchTerm) {
@@ -1932,18 +2041,12 @@
             mapMarkers.forEach(m => map.removeLayer(m));
             mapMarkers = [];
 
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const activeFilters = getActiveFilters();
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
             const visibleTours = tours.filter(tour => {
                 if (showFavoritesOnly && !favorites.includes(tour.id)) return false;
-                if (activeFilter !== 'all') {
-                    if (['nh', 'vt', 'me', 'ny', 'ma', 'pa'].includes(activeFilter)) {
-                        if (tour.state.toLowerCase() !== activeFilter) return false;
-                    } else {
-                        if (!tour.source.includes(activeFilter)) return false;
-                    }
-                }
+                if (!matchesFilters(activeFilters, tour.state.toLowerCase(), tour.source)) return false;
                 if (searchTerm && !tour.name.toLowerCase().includes(searchTerm)) return false;
                 return true;
             });
@@ -2064,11 +2167,24 @@
             // Render tours
             renderTours();
 
-            // Filter buttons
+            // Filter buttons (multi-select)
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                    const filter = btn.dataset.filter;
+                    if (filter === 'all') {
+                        // "All" deselects everything else
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    } else {
+                        // Toggle this filter
+                        btn.classList.toggle('active');
+                        // Deactivate "All" if something else is active
+                        document.querySelector('.filter-btn[data-filter="all"]').classList.remove('active');
+                        // If nothing is selected, re-activate "All"
+                        if (!document.querySelector('.filter-btn.active')) {
+                            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                        }
+                    }
                     applyFilters();
                 });
             });
