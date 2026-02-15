@@ -376,6 +376,21 @@
             color: var(--accent-green);
         }
 
+        .tour-badge.ikon {
+            background: rgba(217, 169, 91, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .tour-badge.epic {
+            background: rgba(91, 143, 185, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .tour-badge.indy {
+            background: rgba(122, 157, 126, 0.2);
+            color: var(--accent-green);
+        }
+
         /* Weather Data */
         .weather-grid {
             display: grid;
@@ -895,6 +910,18 @@
             opacity: 0.7;
         }
 
+        .snow-marker-label.has-wind {
+            background: var(--accent-yellow);
+        }
+
+        .snow-marker-label.hot {
+            background: var(--accent-red);
+        }
+
+        .snow-marker-label.cold {
+            background: var(--accent-blue);
+        }
+
         .leaflet-popup-content-wrapper {
             background: var(--bg-secondary) !important;
             color: var(--text-primary) !important;
@@ -1122,18 +1149,28 @@
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="book">Book Tours</button>
             <button class="filter-btn" data-filter="gba">GBA Glades</button>
+            <button class="filter-btn" data-filter="ikon">Ikon</button>
+            <button class="filter-btn" data-filter="epic">Epic</button>
+            <button class="filter-btn" data-filter="indy">Indy</button>
             <button class="filter-btn" data-filter="nh">NH</button>
             <button class="filter-btn" data-filter="vt">VT</button>
             <button class="filter-btn" data-filter="me">ME</button>
             <button class="filter-btn" data-filter="ny">NY</button>
             <button class="filter-btn" data-filter="ma">MA</button>
+            <button class="filter-btn" data-filter="pa">PA</button>
         </div>
 
-        <div style="text-align:center;margin-bottom:20px;">
+        <div style="text-align:center;margin-bottom:20px;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;">
             <div class="view-toggle">
                 <button class="view-toggle-btn active" id="card-view-btn">Cards</button>
                 <button class="view-toggle-btn" id="map-view-btn">Map</button>
             </div>
+            <select class="sort-select" id="map-metric-select" style="display:none;">
+                <option value="snow-tomorrow">Snow Tomorrow</option>
+                <option value="wind">Wind (mph)</option>
+                <option value="temp">Temp (&deg;F)</option>
+                <option value="best-day">Best Day (5-day)</option>
+            </select>
         </div>
         <div id="map-container"><div id="map"></div></div>
         <div id="tours-container"></div>
@@ -1177,83 +1214,126 @@
         // ==================== DATA ====================
         const tours = [
             // NEW HAMPSHIRE - Book Tours
-            { id: 1, name: "Mt. Cardigan", state: "NH", region: "Western NH", lat: 43.6497, lon: -71.9148, elevation: 3155, source: "book" },
-            { id: 2, name: "Mt. Monadnock", state: "NH", region: "Southern NH", lat: 42.8612, lon: -72.1092, elevation: 3165, source: "book" },
-            { id: 3, name: "Mt. Moosilauke", state: "NH", region: "Western Whites", lat: 44.0245, lon: -71.8309, elevation: 4802, source: "book" },
-            { id: 4, name: "Mt. Chocorua", state: "NH", region: "Sandwich Range", lat: 43.9542, lon: -71.2734, elevation: 3490, source: "book" },
-            { id: 5, name: "Cannon Mountain", state: "NH", region: "Franconia", lat: 44.1565, lon: -71.6984, elevation: 4080, source: "book" },
-            { id: 6, name: "Mt. Garfield", state: "NH", region: "Franconia", lat: 44.1870, lon: -71.6109, elevation: 4500, source: "book" },
-            { id: 7, name: "Carter Notch Hut Tours", state: "NH", region: "Carter Range", lat: 44.2592, lon: -71.1958, elevation: 3388, source: "book" },
-            { id: 8, name: "Wildcat Valley Trail", state: "NH", region: "Carter Range", lat: 44.2631, lon: -71.2392, elevation: 4422, source: "book" },
-            { id: 9, name: "Doublehead Ski Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, source: "book" },
-            { id: 10, name: "Avalanche Brook Trail", state: "NH", region: "Mt. Washington", lat: 44.2706, lon: -71.3033, elevation: 4000, source: "book" },
-            { id: 11, name: "Pinkham Notch Tours", state: "NH", region: "Mt. Washington", lat: 44.2572, lon: -71.2533, elevation: 2032, source: "book" },
-            { id: 12, name: "Gulf of Slides", state: "NH", region: "Mt. Washington", lat: 44.2567, lon: -71.2553, elevation: 4100, source: "book" },
-            { id: 13, name: "Sherburne Ski Trail", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 3950, source: "book" },
-            { id: 14, name: "Tuckerman Ravine", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 4400, source: "book" },
-            { id: 15, name: "Great Gulf", state: "NH", region: "Mt. Washington", lat: 44.2867, lon: -71.2850, elevation: 4000, source: "book" },
-            { id: 16, name: "Oakes Gulf", state: "NH", region: "Mt. Washington", lat: 44.2500, lon: -71.2917, elevation: 4600, source: "book" },
-            { id: 17, name: "Zealand Falls Hut Tour", state: "NH", region: "Pemigewasset", lat: 44.1956, lon: -71.4942, elevation: 2630, source: "book" },
-            { id: 18, name: "Zealand Notch Tours", state: "NH", region: "Pemigewasset", lat: 44.1900, lon: -71.4800, elevation: 2500, source: "book" },
-            { id: 19, name: "Pemigewasset River Tours", state: "NH", region: "Pemigewasset", lat: 44.1500, lon: -71.5500, elevation: 2000, source: "book" },
-            { id: 20, name: "Greeley Ponds", state: "NH", region: "Kancamagus", lat: 44.0167, lon: -71.5167, elevation: 2200, source: "book" },
-            { id: 21, name: "Easy Day Trips (White Mtns)", state: "NH", region: "White Mountains", lat: 44.2000, lon: -71.4000, elevation: 2500, source: "book" },
+            { id: 1, name: "Mt. Cardigan", state: "NH", region: "Western NH", lat: 43.6497, lon: -71.9148, elevation: 3155, source: ["book"] },
+            { id: 2, name: "Mt. Monadnock", state: "NH", region: "Southern NH", lat: 42.8612, lon: -72.1092, elevation: 3165, source: ["book"] },
+            { id: 3, name: "Mt. Moosilauke", state: "NH", region: "Western Whites", lat: 44.0245, lon: -71.8309, elevation: 4802, source: ["book"] },
+            { id: 4, name: "Mt. Chocorua", state: "NH", region: "Sandwich Range", lat: 43.9542, lon: -71.2734, elevation: 3490, source: ["book"] },
+            { id: 5, name: "Cannon Mountain", state: "NH", region: "Franconia", lat: 44.1565, lon: -71.6984, elevation: 4080, source: ["book"] },
+            { id: 6, name: "Mt. Garfield", state: "NH", region: "Franconia", lat: 44.1870, lon: -71.6109, elevation: 4500, source: ["book"] },
+            { id: 7, name: "Carter Notch Hut Tours", state: "NH", region: "Carter Range", lat: 44.2592, lon: -71.1958, elevation: 3388, source: ["book"] },
+            { id: 8, name: "Wildcat Valley Trail", state: "NH", region: "Carter Range", lat: 44.2631, lon: -71.2392, elevation: 4422, source: ["book"] },
+            { id: 9, name: "Doublehead Ski Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, source: ["book"] },
+            { id: 10, name: "Avalanche Brook Trail", state: "NH", region: "Mt. Washington", lat: 44.2706, lon: -71.3033, elevation: 4000, source: ["book"] },
+            { id: 11, name: "Pinkham Notch Tours", state: "NH", region: "Mt. Washington", lat: 44.2572, lon: -71.2533, elevation: 2032, source: ["book"] },
+            { id: 12, name: "Gulf of Slides", state: "NH", region: "Mt. Washington", lat: 44.2567, lon: -71.2553, elevation: 4100, source: ["book"] },
+            { id: 13, name: "Sherburne Ski Trail", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 3950, source: ["book"] },
+            { id: 14, name: "Tuckerman Ravine", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 4400, source: ["book"] },
+            { id: 15, name: "Great Gulf", state: "NH", region: "Mt. Washington", lat: 44.2867, lon: -71.2850, elevation: 4000, source: ["book"] },
+            { id: 16, name: "Oakes Gulf", state: "NH", region: "Mt. Washington", lat: 44.2500, lon: -71.2917, elevation: 4600, source: ["book"] },
+            { id: 17, name: "Zealand Falls Hut Tour", state: "NH", region: "Pemigewasset", lat: 44.1956, lon: -71.4942, elevation: 2630, source: ["book"] },
+            { id: 18, name: "Zealand Notch Tours", state: "NH", region: "Pemigewasset", lat: 44.1900, lon: -71.4800, elevation: 2500, source: ["book"] },
+            { id: 19, name: "Pemigewasset River Tours", state: "NH", region: "Pemigewasset", lat: 44.1500, lon: -71.5500, elevation: 2000, source: ["book"] },
+            { id: 20, name: "Greeley Ponds", state: "NH", region: "Kancamagus", lat: 44.0167, lon: -71.5167, elevation: 2200, source: ["book"] },
+            { id: 21, name: "Easy Day Trips (White Mtns)", state: "NH", region: "White Mountains", lat: 44.2000, lon: -71.4000, elevation: 2500, source: ["book"] },
+
+            // NEW HAMPSHIRE - Ski Resorts
+            { id: 64, name: "Loon Mountain", state: "NH", region: "Lincoln", lat: 44.0346, lon: -71.6208, elevation: 3050, source: ["ikon"] },
+            { id: 65, name: "Mount Sunapee", state: "NH", region: "Newbury", lat: 43.3141, lon: -72.0744, elevation: 2743, source: ["ikon", "epic"] },
+            { id: 66, name: "Cranmore Mountain", state: "NH", region: "North Conway", lat: 44.0576, lon: -71.0928, elevation: 2000, source: ["ikon", "indy"] },
+            { id: 67, name: "Attitash Mountain", state: "NH", region: "Bartlett", lat: 44.0465, lon: -71.2312, elevation: 2350, source: ["epic"] },
+            { id: 68, name: "Wildcat Mountain", state: "NH", region: "Pinkham Notch", lat: 44.2700, lon: -71.2100, elevation: 4422, source: ["epic"] },
+            { id: 69, name: "Crotched Mountain", state: "NH", region: "Bennington", lat: 42.9981, lon: -71.8740, elevation: 2066, source: ["epic"] },
+            { id: 70, name: "Waterville Valley", state: "NH", region: "Waterville Valley", lat: 43.9673, lon: -71.5581, elevation: 4004, source: ["indy"] },
+            { id: 71, name: "Pats Peak", state: "NH", region: "Henniker", lat: 43.2000, lon: -71.5600, elevation: 1800, source: ["indy"] },
+            { id: 72, name: "Dartmouth Skiway", state: "NH", region: "Lyme", lat: 43.7870, lon: -72.1004, elevation: 2500, source: ["indy"] },
+            { id: 73, name: "Black Mountain", state: "NH", region: "Jackson", lat: 44.0745, lon: -71.9237, elevation: 1750, source: ["indy"] },
+            { id: 74, name: "Tenney Mountain", state: "NH", region: "Plymouth", lat: 43.7359, lon: -71.7934, elevation: 2070, source: ["indy"] },
 
             // VERMONT - Book Tours
-            { id: 22, name: "Stratton Pond", state: "VT", region: "Southern VT", lat: 43.0833, lon: -72.9333, elevation: 2600, source: "book" },
-            { id: 23, name: "Skyline Trail", state: "VT", region: "Southern VT", lat: 43.1500, lon: -72.9000, elevation: 3900, source: "book" },
-            { id: 24, name: "Mt. Moosalamoo", state: "VT", region: "Central VT", lat: 43.9333, lon: -73.0167, elevation: 2640, source: "book" },
-            { id: 25, name: "Breadloaf Wilderness/Norske Trail", state: "VT", region: "Central VT", lat: 43.9667, lon: -72.9500, elevation: 3800, source: "book" },
-            { id: 26, name: "Woodward Mountain Trail", state: "VT", region: "Central VT", lat: 44.0000, lon: -72.9000, elevation: 3100, source: "book" },
-            { id: 27, name: "Bolton-Trapp Trail", state: "VT", region: "Northern VT", lat: 44.4167, lon: -72.8667, elevation: 3200, source: "book" },
-            { id: 28, name: "Long Trail - Monroe Skyline", state: "VT", region: "Northern VT", lat: 44.3000, lon: -72.8500, elevation: 4000, source: "book" },
-            { id: 29, name: "Camel's Hump", state: "VT", region: "Northern VT", lat: 44.3194, lon: -72.8861, elevation: 4083, source: "book" },
-            { id: 30, name: "Lake Willoughby", state: "VT", region: "Northeast Kingdom", lat: 44.7500, lon: -72.0333, elevation: 2600, source: "book" },
-            { id: 31, name: "Big Jay", state: "VT", region: "Jay Peak", lat: 44.9500, lon: -72.5167, elevation: 3800, source: "book" },
-            { id: 32, name: "Bruce Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4393, source: "book" },
-            { id: 33, name: "Teardrop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: "book" },
-            { id: 34, name: "Skytop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: "book" },
-            { id: 35, name: "Steeple Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 3800, source: "book" },
-            { id: 36, name: "Nebraska Notch", state: "VT", region: "Mt. Mansfield", lat: 44.5000, lon: -72.8333, elevation: 2800, source: "book" },
+            { id: 22, name: "Stratton Pond", state: "VT", region: "Southern VT", lat: 43.0833, lon: -72.9333, elevation: 2600, source: ["book"] },
+            { id: 23, name: "Skyline Trail", state: "VT", region: "Southern VT", lat: 43.1500, lon: -72.9000, elevation: 3900, source: ["book"] },
+            { id: 24, name: "Mt. Moosalamoo", state: "VT", region: "Central VT", lat: 43.9333, lon: -73.0167, elevation: 2640, source: ["book"] },
+            { id: 25, name: "Breadloaf Wilderness/Norske Trail", state: "VT", region: "Central VT", lat: 43.9667, lon: -72.9500, elevation: 3800, source: ["book"] },
+            { id: 26, name: "Woodward Mountain Trail", state: "VT", region: "Central VT", lat: 44.0000, lon: -72.9000, elevation: 3100, source: ["book"] },
+            { id: 27, name: "Bolton-Trapp Trail", state: "VT", region: "Northern VT", lat: 44.4167, lon: -72.8667, elevation: 3200, source: ["book"] },
+            { id: 28, name: "Long Trail - Monroe Skyline", state: "VT", region: "Northern VT", lat: 44.3000, lon: -72.8500, elevation: 4000, source: ["book"] },
+            { id: 29, name: "Camel's Hump", state: "VT", region: "Northern VT", lat: 44.3194, lon: -72.8861, elevation: 4083, source: ["book"] },
+            { id: 30, name: "Lake Willoughby", state: "VT", region: "Northeast Kingdom", lat: 44.7500, lon: -72.0333, elevation: 2600, source: ["book"] },
+            { id: 31, name: "Big Jay", state: "VT", region: "Jay Peak", lat: 44.9500, lon: -72.5167, elevation: 3800, source: ["book"] },
+            { id: 32, name: "Bruce Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4393, source: ["book"] },
+            { id: 33, name: "Teardrop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: ["book"] },
+            { id: 34, name: "Skytop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: ["book"] },
+            { id: 35, name: "Steeple Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 3800, source: ["book"] },
+            { id: 36, name: "Nebraska Notch", state: "VT", region: "Mt. Mansfield", lat: 44.5000, lon: -72.8333, elevation: 2800, source: ["book"] },
+
+            // VERMONT - Ski Resorts
+            { id: 75, name: "Stratton Mountain", state: "VT", region: "Southern VT", lat: 43.0865, lon: -72.9259, elevation: 3940, source: ["ikon"] },
+            { id: 76, name: "Sugarbush Resort", state: "VT", region: "Warren", lat: 44.1200, lon: -72.8300, elevation: 4083, source: ["ikon"] },
+            { id: 77, name: "Killington", state: "VT", region: "Killington", lat: 43.6045, lon: -72.8201, elevation: 4229, source: ["ikon"] },
+            { id: 78, name: "Stowe Mountain", state: "VT", region: "Stowe", lat: 44.5297, lon: -72.7793, elevation: 4395, source: ["ikon", "epic"] },
+            { id: 79, name: "Okemo Mountain", state: "VT", region: "Ludlow", lat: 43.4008, lon: -72.7167, elevation: 3344, source: ["ikon", "epic"] },
+            { id: 80, name: "Mount Snow", state: "VT", region: "West Dover", lat: 42.9590, lon: -72.9237, elevation: 3600, source: ["ikon", "epic"] },
+            { id: 81, name: "Jay Peak", state: "VT", region: "Jay", lat: 44.9245, lon: -72.5257, elevation: 3862, source: ["indy"] },
+            { id: 82, name: "Burke Mountain", state: "VT", region: "East Burke", lat: 44.5712, lon: -71.8923, elevation: 3258, source: ["indy"] },
+            { id: 83, name: "Bolton Valley", state: "VT", region: "Bolton", lat: 44.4492, lon: -72.8396, elevation: 3150, source: ["indy"] },
+            { id: 84, name: "Magic Mountain", state: "VT", region: "Londonderry", lat: 43.2000, lon: -72.7700, elevation: 2850, source: ["indy"] },
 
             // MAINE - Book Tours
-            { id: 37, name: "Acadia National Park", state: "ME", region: "Coastal Maine", lat: 44.3386, lon: -68.2733, elevation: 1530, source: "book" },
-            { id: 38, name: "Camden Hills State Park", state: "ME", region: "Midcoast Maine", lat: 44.2333, lon: -69.0667, elevation: 1380, source: "book" },
-            { id: 39, name: "Katahdin & Baxter State Park", state: "ME", region: "Northern Maine", lat: 45.9044, lon: -68.9214, elevation: 5269, source: "book" },
-            { id: 40, name: "100 Mile Wilderness", state: "ME", region: "Northern Maine", lat: 45.5000, lon: -69.2500, elevation: 2000, source: "book" },
-            { id: 41, name: "Grand Canyon of Maine", state: "ME", region: "Northern Maine", lat: 45.4833, lon: -69.4500, elevation: 1800, source: "book" },
-            { id: 42, name: "Maine Huts", state: "ME", region: "Western Maine", lat: 45.0833, lon: -70.2167, elevation: 2500, source: "book" },
+            { id: 37, name: "Acadia National Park", state: "ME", region: "Coastal Maine", lat: 44.3386, lon: -68.2733, elevation: 1530, source: ["book"] },
+            { id: 38, name: "Camden Hills State Park", state: "ME", region: "Midcoast Maine", lat: 44.2333, lon: -69.0667, elevation: 1380, source: ["book"] },
+            { id: 39, name: "Katahdin & Baxter State Park", state: "ME", region: "Northern Maine", lat: 45.9044, lon: -68.9214, elevation: 5269, source: ["book"] },
+            { id: 40, name: "100 Mile Wilderness", state: "ME", region: "Northern Maine", lat: 45.5000, lon: -69.2500, elevation: 2000, source: ["book"] },
+            { id: 41, name: "Grand Canyon of Maine", state: "ME", region: "Northern Maine", lat: 45.4833, lon: -69.4500, elevation: 1800, source: ["book"] },
+            { id: 42, name: "Maine Huts", state: "ME", region: "Western Maine", lat: 45.0833, lon: -70.2167, elevation: 2500, source: ["book"] },
+
+            // MAINE - Ski Resorts
+            { id: 85, name: "Sunday River", state: "ME", region: "Newry", lat: 44.4683, lon: -70.8567, elevation: 3140, source: ["ikon"] },
+            { id: 86, name: "Sugarloaf", state: "ME", region: "Carrabassett Valley", lat: 45.0317, lon: -70.3133, elevation: 4237, source: ["ikon"] },
+            { id: 87, name: "Big Rock", state: "ME", region: "Mars Hill", lat: 46.5220, lon: -67.8297, elevation: 1610, source: ["indy"] },
+            { id: 88, name: "Mt. Abram", state: "ME", region: "Greenwood", lat: 44.3800, lon: -70.7200, elevation: 2000, source: ["indy"] },
 
             // NEW YORK - Book Tours
-            { id: 43, name: "Jackrabbit Trail", state: "NY", region: "Adirondacks", lat: 44.2833, lon: -74.0000, elevation: 2000, source: "book" },
-            { id: 44, name: "Camp Peggy O'Brien Hut Tour", state: "NY", region: "Adirondacks", lat: 44.1167, lon: -74.0500, elevation: 2800, source: "book" },
-            { id: 45, name: "Wright Peak Ski Trail", state: "NY", region: "Adirondacks", lat: 44.1517, lon: -73.9808, elevation: 4580, source: "book" },
-            { id: 46, name: "Avalanche Pass & Lake Colden", state: "NY", region: "Adirondacks", lat: 44.1333, lon: -73.9667, elevation: 2800, source: "book" },
-            { id: 47, name: "Mt. Marcy", state: "NY", region: "Adirondacks", lat: 44.1128, lon: -73.9237, elevation: 5344, source: "book" },
+            { id: 43, name: "Jackrabbit Trail", state: "NY", region: "Adirondacks", lat: 44.2833, lon: -74.0000, elevation: 2000, source: ["book"] },
+            { id: 44, name: "Camp Peggy O'Brien Hut Tour", state: "NY", region: "Adirondacks", lat: 44.1167, lon: -74.0500, elevation: 2800, source: ["book"] },
+            { id: 45, name: "Wright Peak Ski Trail", state: "NY", region: "Adirondacks", lat: 44.1517, lon: -73.9808, elevation: 4580, source: ["book"] },
+            { id: 46, name: "Avalanche Pass & Lake Colden", state: "NY", region: "Adirondacks", lat: 44.1333, lon: -73.9667, elevation: 2800, source: ["book"] },
+            { id: 47, name: "Mt. Marcy", state: "NY", region: "Adirondacks", lat: 44.1128, lon: -73.9237, elevation: 5344, source: ["book"] },
+
+            // NEW YORK - Ski Resorts
+            { id: 89, name: "Hunter Mountain", state: "NY", region: "Hunter", lat: 42.1779, lon: -74.2304, elevation: 3200, source: ["epic"] },
+            { id: 90, name: "Greek Peak", state: "NY", region: "Virgil", lat: 42.5100, lon: -76.1400, elevation: 2100, source: ["indy"] },
+            { id: 91, name: "Titus Mountain", state: "NY", region: "Malone", lat: 44.7600, lon: -74.2300, elevation: 2025, source: ["indy"] },
 
             // MASSACHUSETTS - Book Tours
-            { id: 48, name: "Thunderbolt Ski Trail", state: "MA", region: "Berkshires", lat: 42.6375, lon: -73.1667, elevation: 3491, source: "book" },
+            { id: 48, name: "Thunderbolt Ski Trail", state: "MA", region: "Berkshires", lat: 42.6375, lon: -73.1667, elevation: 3491, source: ["book"] },
+
+            // MASSACHUSETTS - Ski Resorts
+            { id: 92, name: "Jiminy Peak", state: "MA", region: "Hancock", lat: 42.5442, lon: -73.2862, elevation: 2380, source: ["ikon"] },
+            { id: 93, name: "Bousquet Mountain", state: "MA", region: "Pittsfield", lat: 42.4190, lon: -73.2770, elevation: 1875, source: ["indy"] },
+
+            // PENNSYLVANIA - Ski Resorts
+            { id: 94, name: "Ski Big Bear", state: "PA", region: "Lackawaxen", lat: 41.4866, lon: -75.0592, elevation: 2175, source: ["indy"] },
 
             // GBA GLADES - New Hampshire
-            { id: 49, name: "The Pike Glades", state: "NH", region: "Pike", lat: 44.0500, lon: -71.9500, elevation: 2200, vertical: 1500, source: "gba", address: "2719 Mt Moosilauke Highway, Pike, NH" },
-            { id: 50, name: "Maple Villa Glade", state: "NH", region: "Intervale", lat: 44.0833, lon: -71.1167, elevation: 2200, vertical: 1700, source: "gba", address: "70 East Branch Road, Intervale, NH" },
-            { id: 51, name: "West Side Glade", state: "NH", region: "Bartlett", lat: 44.0667, lon: -71.3000, elevation: 1600, vertical: 600, source: "gba", address: "629 West Side Road, Bartlett, NH" },
-            { id: 52, name: "Ski Tow Glade", state: "NH", region: "Lancaster", lat: 44.4833, lon: -71.5667, elevation: 2000, vertical: 700, source: "gba", address: "Route 3, Prospect Street, Lancaster, NH" },
-            { id: 53, name: "PRKR MTN Glades", state: "NH", region: "Littleton", lat: 44.3000, lon: -71.7667, elevation: 1800, vertical: 400, source: "gba", address: "Scout Lot, Littleton, NH" },
-            { id: 54, name: "Baldface", state: "NH", region: "Chatham", lat: 44.2333, lon: -71.0000, elevation: 3000, vertical: 2500, source: "gba", address: "Baldface Circle Trail (Rt. 113), Chatham, NH" },
-            { id: 55, name: "Cooley-Jericho Glade", state: "NH", region: "Franconia", lat: 44.2167, lon: -71.7500, elevation: 2600, vertical: 800, source: "gba", address: "12 Trumpet Round Rd, Easton, NH" },
-            { id: 56, name: "Hypnosis Glade", state: "NH", region: "Madison", lat: 43.9000, lon: -71.1333, elevation: 1400, vertical: 400, source: "gba", address: "White Mountain Hypnosis Center, Madison, NH" },
-            { id: 57, name: "Bill Hill Glade", state: "NH", region: "Gorham", lat: 44.3833, lon: -71.1833, elevation: 1800, vertical: 600, source: "gba", address: "Bellevue Road, Gorham, NH" },
-            { id: 58, name: "Page Hill", state: "NH", region: "Tamworth", lat: 43.8500, lon: -71.2667, elevation: 1350, vertical: 350, source: "gba", address: "388 Page Hill Rd, Tamworth, NH" },
+            { id: 49, name: "The Pike Glades", state: "NH", region: "Pike", lat: 44.0500, lon: -71.9500, elevation: 2200, vertical: 1500, source: ["gba"], address: "2719 Mt Moosilauke Highway, Pike, NH" },
+            { id: 50, name: "Maple Villa Glade", state: "NH", region: "Intervale", lat: 44.0833, lon: -71.1167, elevation: 2200, vertical: 1700, source: ["gba"], address: "70 East Branch Road, Intervale, NH" },
+            { id: 51, name: "West Side Glade", state: "NH", region: "Bartlett", lat: 44.0667, lon: -71.3000, elevation: 1600, vertical: 600, source: ["gba"], address: "629 West Side Road, Bartlett, NH" },
+            { id: 52, name: "Ski Tow Glade", state: "NH", region: "Lancaster", lat: 44.4833, lon: -71.5667, elevation: 2000, vertical: 700, source: ["gba"], address: "Route 3, Prospect Street, Lancaster, NH" },
+            { id: 53, name: "PRKR MTN Glades", state: "NH", region: "Littleton", lat: 44.3000, lon: -71.7667, elevation: 1800, vertical: 400, source: ["gba"], address: "Scout Lot, Littleton, NH" },
+            { id: 54, name: "Baldface", state: "NH", region: "Chatham", lat: 44.2333, lon: -71.0000, elevation: 3000, vertical: 2500, source: ["gba"], address: "Baldface Circle Trail (Rt. 113), Chatham, NH" },
+            { id: 55, name: "Cooley-Jericho Glade", state: "NH", region: "Franconia", lat: 44.2167, lon: -71.7500, elevation: 2600, vertical: 800, source: ["gba"], address: "12 Trumpet Round Rd, Easton, NH" },
+            { id: 56, name: "Hypnosis Glade", state: "NH", region: "Madison", lat: 43.9000, lon: -71.1333, elevation: 1400, vertical: 400, source: ["gba"], address: "White Mountain Hypnosis Center, Madison, NH" },
+            { id: 57, name: "Bill Hill Glade", state: "NH", region: "Gorham", lat: 44.3833, lon: -71.1833, elevation: 1800, vertical: 600, source: ["gba"], address: "Bellevue Road, Gorham, NH" },
+            { id: 58, name: "Page Hill", state: "NH", region: "Tamworth", lat: 43.8500, lon: -71.2667, elevation: 1350, vertical: 350, source: ["gba"], address: "388 Page Hill Rd, Tamworth, NH" },
 
             // GBA GLADES - Maine
-            { id: 59, name: "Black & White Glade", state: "ME", region: "Rumford", lat: 44.5500, lon: -70.5500, elevation: 2214, vertical: 1400, source: "gba", address: "East Andover Road at Black Mountain of Maine" },
+            { id: 59, name: "Black & White Glade", state: "ME", region: "Rumford", lat: 44.5500, lon: -70.5500, elevation: 2214, vertical: 1400, source: ["gba"], address: "East Andover Road at Black Mountain of Maine" },
 
             // GBA CCC TRAILS
-            { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, source: "gba", address: "Jackson, NH" },
-            { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, source: "gba", address: "Jackson, NH" },
-            { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, source: "gba", address: "Pinkham Notch, NH" },
-            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, source: "gba", address: "Pinkham Notch, NH" }
+            { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, source: ["gba"], address: "Jackson, NH" },
+            { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, source: ["gba"], address: "Jackson, NH" },
+            { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, source: ["gba"], address: "Pinkham Notch, NH" },
+            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, source: ["gba"], address: "Pinkham Notch, NH" }
         ];
 
         // ==================== STATE ====================
@@ -1267,6 +1347,7 @@
         let map = null;
         let mapMarkers = [];
         let currentView = 'card';
+        let mapMetric = 'snow-tomorrow';
 
         // ==================== WEATHER API ====================
         async function fetchWeather(lat, lon) {
@@ -1278,7 +1359,7 @@
             }
 
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=7`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10`;
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -1358,9 +1439,9 @@
             }
 
             // 7-day totals
-            let snow7d = 0;
+            let snow10d = 0;
             if (daily && daily.snowfall_sum) {
-                daily.snowfall_sum.forEach(s => snow7d += s || 0);
+                daily.snowfall_sum.forEach(s => snow10d += s || 0);
             }
 
             // Hourly forecast (next 24 hours)
@@ -1396,7 +1477,7 @@
                 current,
                 snow24h: Math.round(snow24h / 2.54 * 10) / 10,
                 rain24h: Math.round(rain24h / 25.4 * 10) / 10,
-                snow7d: Math.round(snow7d / 2.54 * 10) / 10,
+                snow10d: Math.round(snow10d / 2.54 * 10) / 10,
                 hourlyForecast,
                 dailyForecast
             };
@@ -1428,11 +1509,11 @@
             card.className = 'tour-card';
             card.dataset.id = tour.id;
             card.dataset.state = tour.state.toLowerCase();
-            card.dataset.source = tour.source;
+            card.dataset.source = tour.source.join(',');
             card.dataset.name = tour.name.toLowerCase();
             card.dataset.elevation = tour.elevation;
             card.dataset.snowDepth = weather?.current?.snowDepth || 0;
-            card.dataset.forecast = weather?.snow7d || 0;
+            card.dataset.forecast = weather?.snow10d || 0;
 
             let weatherHtml = '<div class="weather-grid"><p class="loading">Loading weather...</p></div>';
             let forecastHtml = '';
@@ -1479,7 +1560,10 @@
             }
 
             const badges = [];
-            badges.push(`<span class="tour-badge ${tour.source}">${tour.source === 'gba' ? 'GBA' : 'Book'}</span>`);
+            const sourceLabels = { book: 'Book', gba: 'GBA', ikon: 'Ikon', epic: 'Epic', indy: 'Indy' };
+            tour.source.forEach(s => {
+                badges.push(`<span class="tour-badge ${s}">${sourceLabels[s] || s}</span>`);
+            });
             badges.push(`<span class="tour-badge elevation">${tour.elevation.toLocaleString()} ft</span>`);
             if (tour.vertical) {
                 badges.push(`<span class="tour-badge vertical">${tour.vertical} ft vert</span>`);
@@ -1520,10 +1604,10 @@
 
             const stateNames = {
                 'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
-                'NY': 'New York', 'MA': 'Massachusetts'
+                'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania'
             };
 
-            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA']) {
+            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA', 'PA']) {
                 if (!stateGroups[state]) continue;
 
                 const section = document.createElement('div');
@@ -1655,14 +1739,14 @@
                     bodyHtml += '</div></div>';
                 }
 
-                // 7-Day Forecast
+                // 10-Day Forecast
                 if (weather.dailyForecast.length > 0) {
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     const maxSnow = Math.max(...weather.dailyForecast.map(d => d.snow), 1);
 
                     bodyHtml += `
                         <div class="modal-section">
-                            <h3 class="modal-section-title">7-Day Forecast (${weather.snow7d}" total snow)</h3>
+                            <h3 class="modal-section-title">10-Day Forecast (${weather.snow10d}" total snow)</h3>
                             <div class="daily-forecast">
                     `;
 
@@ -1729,9 +1813,14 @@
                         <div class="info-item">
                             <div class="info-label">Source</div>
                             <div class="info-value">
-                                ${tour.source === 'gba'
-                                    ? '<a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a>'
-                                    : '<a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a>'}
+                                ${tour.source.map(s => {
+                                    if (s === 'gba') return '<a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a>';
+                                    if (s === 'book') return '<a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a>';
+                                    if (s === 'ikon') return '<a href="https://www.ikonpass.com/" target="_blank">Ikon Pass</a>';
+                                    if (s === 'epic') return '<a href="https://www.epicpass.com/" target="_blank">Epic Pass</a>';
+                                    if (s === 'indy') return '<a href="https://www.indyskipass.com/" target="_blank">Indy Pass</a>';
+                                    return s;
+                                }).join(' · ')}
                             </div>
                         </div>
                         <div class="info-item">
@@ -1792,10 +1881,10 @@
                 }
 
                 if (show && activeFilter !== 'all') {
-                    if (['nh', 'vt', 'me', 'ny', 'ma'].includes(activeFilter)) {
+                    if (['nh', 'vt', 'me', 'ny', 'ma', 'pa'].includes(activeFilter)) {
                         show = card.dataset.state === activeFilter;
                     } else {
-                        show = card.dataset.source === activeFilter;
+                        show = card.dataset.source.split(',').includes(activeFilter);
                     }
                 }
 
@@ -1891,10 +1980,10 @@
             const visibleTours = tours.filter(tour => {
                 if (showFavoritesOnly && !favorites.includes(tour.id)) return false;
                 if (activeFilter !== 'all') {
-                    if (['nh', 'vt', 'me', 'ny', 'ma'].includes(activeFilter)) {
+                    if (['nh', 'vt', 'me', 'ny', 'ma', 'pa'].includes(activeFilter)) {
                         if (tour.state.toLowerCase() !== activeFilter) return false;
                     } else {
-                        if (tour.source !== activeFilter) return false;
+                        if (!tour.source.includes(activeFilter)) return false;
                     }
                 }
                 if (searchTerm && !tour.name.toLowerCase().includes(searchTerm)) return false;
@@ -1905,15 +1994,54 @@
 
             visibleTours.forEach(tour => {
                 const weather = tourWeatherData.get(tour.id);
-                const tomorrowSnow = weather?.dailyForecast?.[1]?.snow ?? '—';
-                const hasSnow = typeof tomorrowSnow === 'number' && tomorrowSnow > 0;
-                const label = typeof tomorrowSnow === 'number' ? tomorrowSnow + '"' : '—';
+                let label = '—';
+                let colorClass = 'no-snow';
+
+                if (weather) {
+                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    switch (mapMetric) {
+                        case 'snow-tomorrow': {
+                            const val = weather.dailyForecast?.[1]?.snow ?? null;
+                            label = val !== null ? val + '"' : '—';
+                            colorClass = (val !== null && val > 0) ? 'has-snow' : 'no-snow';
+                            break;
+                        }
+                        case 'wind': {
+                            const val = weather.current.wind;
+                            label = val + ' mph';
+                            colorClass = val > 20 ? 'has-wind' : 'no-snow';
+                            break;
+                        }
+                        case 'temp': {
+                            const val = weather.current.temp;
+                            label = val + '°F';
+                            colorClass = val > 32 ? 'hot' : 'cold';
+                            break;
+                        }
+                        case 'best-day': {
+                            const forecast = weather.dailyForecast.slice(0, 5);
+                            let bestIdx = 0, bestSnow = 0;
+                            forecast.forEach((d, i) => {
+                                if (d.snow > bestSnow) { bestSnow = d.snow; bestIdx = i; }
+                            });
+                            if (bestSnow > 0) {
+                                const dayName = days[forecast[bestIdx].date.getDay()];
+                                label = dayName + ' ' + bestSnow + '"';
+                                colorClass = 'has-snow';
+                            } else {
+                                label = '—';
+                                colorClass = 'no-snow';
+                            }
+                            break;
+                        }
+                    }
+                }
 
                 const icon = L.divIcon({
                     className: 'snow-marker',
-                    html: `<div class="snow-marker-label ${hasSnow ? 'has-snow' : 'no-snow'}">${label}</div>`,
-                    iconSize: [32, 22],
-                    iconAnchor: [16, 11]
+                    html: `<div class="snow-marker-label ${colorClass}">${label}</div>`,
+                    iconSize: [40, 22],
+                    iconAnchor: [20, 11]
                 });
 
                 const marker = L.marker([tour.lat, tour.lon], { icon }).addTo(map);
@@ -1948,12 +2076,14 @@
             const toursContainer = document.getElementById('tours-container');
             const cardBtn = document.getElementById('card-view-btn');
             const mapBtn = document.getElementById('map-view-btn');
+            const metricSelect = document.getElementById('map-metric-select');
 
             if (view === 'map') {
                 mapContainer.classList.add('active');
                 toursContainer.style.display = 'none';
                 mapBtn.classList.add('active');
                 cardBtn.classList.remove('active');
+                metricSelect.style.display = '';
                 initMap();
                 setTimeout(() => {
                     map.invalidateSize();
@@ -1964,6 +2094,7 @@
                 toursContainer.style.display = '';
                 cardBtn.classList.add('active');
                 mapBtn.classList.remove('active');
+                metricSelect.style.display = 'none';
             }
         }
 
@@ -2005,6 +2136,12 @@
             // View toggle
             document.getElementById('card-view-btn').addEventListener('click', () => switchView('card'));
             document.getElementById('map-view-btn').addEventListener('click', () => switchView('map'));
+
+            // Map metric selector
+            document.getElementById('map-metric-select').addEventListener('change', (e) => {
+                mapMetric = e.target.value;
+                if (currentView === 'map') updateMapMarkers();
+            });
 
             // Modal close
             document.getElementById('modal-close').addEventListener('click', closeModal);
