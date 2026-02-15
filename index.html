@@ -96,8 +96,12 @@
             --modal-bg: rgba(244, 243, 240, 0.92);
         }
 
+        [data-theme="light"] header {
+            background: linear-gradient(to bottom, rgba(244,243,240,0.6), rgba(244,243,240,0.9)), url('https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/thumbnails/image/Tuckerman-Ravine-in-Winter-White-Mountains-NH.jpg') center/cover no-repeat;
+        }
+
         .weather-value, .stat-value, .condition-value, .forecast-snow,
-        .hourly-temp, .daily-value, .tour-badge.elevation, .tour-badge.vertical {
+        .hourly-temp, .daily-value, .tour-badge.elevation, .tour-badge.vertical, .tour-badge.pitch {
             font-family: var(--mono);
         }
 
@@ -123,7 +127,7 @@
         header {
             text-align: center;
             padding: 48px 24px 40px;
-            background: var(--bg-secondary);
+            background: linear-gradient(to bottom, rgba(15,17,23,0.55), rgba(15,17,23,0.88)), url('https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/thumbnails/image/Tuckerman-Ravine-in-Winter-White-Mountains-NH.jpg') center/cover no-repeat;
             border-radius: var(--radius-lg);
             margin-bottom: 24px;
             border: 1px solid var(--border-color);
@@ -412,6 +416,36 @@
         .tour-badge.indy {
             background: rgba(90, 154, 110, 0.12);
             color: var(--accent-green);
+        }
+
+        .tour-badge.difficulty-easy {
+            background: rgba(90, 154, 110, 0.15);
+            color: #6ec47e;
+        }
+
+        .tour-badge.difficulty-moderate {
+            background: rgba(74, 144, 217, 0.12);
+            color: var(--accent-blue);
+        }
+
+        .tour-badge.difficulty-difficult {
+            background: rgba(196, 152, 62, 0.12);
+            color: var(--accent-yellow);
+        }
+
+        .tour-badge.difficulty-expert {
+            background: rgba(217, 120, 74, 0.12);
+            color: var(--accent-red);
+        }
+
+        .tour-badge.difficulty-extreme {
+            background: rgba(200, 60, 60, 0.18);
+            color: #e05555;
+        }
+
+        .tour-badge.pitch {
+            background: rgba(180, 160, 200, 0.1);
+            color: var(--text-muted);
         }
 
         /* ─── Weather Data ─── */
@@ -1248,131 +1282,131 @@
         // ==================== DATA ====================
         const tours = [
             // NEW HAMPSHIRE - Book Tours
-            { id: 1, name: "Mt. Cardigan", state: "NH", region: "Western NH", lat: 43.6497, lon: -71.9148, elevation: 3155, source: ["book"] },
-            { id: 2, name: "Mt. Monadnock", state: "NH", region: "Southern NH", lat: 42.8612, lon: -72.1092, elevation: 3165, source: ["book"] },
-            { id: 3, name: "Mt. Moosilauke", state: "NH", region: "Western Whites", lat: 44.0245, lon: -71.8309, elevation: 4802, source: ["book"] },
-            { id: 4, name: "Mt. Chocorua", state: "NH", region: "Sandwich Range", lat: 43.9542, lon: -71.2734, elevation: 3490, source: ["book"] },
-            { id: 5, name: "Cannon Mountain", state: "NH", region: "Franconia", lat: 44.1565, lon: -71.6984, elevation: 4080, source: ["book", "indy"] },
-            { id: 6, name: "Mt. Garfield", state: "NH", region: "Franconia", lat: 44.1870, lon: -71.6109, elevation: 4500, source: ["book"] },
-            { id: 7, name: "Carter Notch Hut Tours", state: "NH", region: "Carter Range", lat: 44.2592, lon: -71.1958, elevation: 3388, source: ["book"] },
-            { id: 8, name: "Wildcat Valley Trail", state: "NH", region: "Carter Range", lat: 44.2631, lon: -71.2392, elevation: 4422, source: ["book"] },
-            { id: 9, name: "Doublehead Ski Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, source: ["book"] },
-            { id: 10, name: "Avalanche Brook Trail", state: "NH", region: "Mt. Washington", lat: 44.2706, lon: -71.3033, elevation: 4000, source: ["book"] },
-            { id: 11, name: "Pinkham Notch Tours", state: "NH", region: "Mt. Washington", lat: 44.2572, lon: -71.2533, elevation: 2032, source: ["book"] },
-            { id: 12, name: "Gulf of Slides", state: "NH", region: "Mt. Washington", lat: 44.2567, lon: -71.2553, elevation: 4100, source: ["book"] },
-            { id: 13, name: "Sherburne Ski Trail", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 3950, source: ["book"] },
-            { id: 14, name: "Tuckerman Ravine", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 4400, source: ["book"] },
-            { id: 15, name: "Great Gulf", state: "NH", region: "Mt. Washington", lat: 44.2867, lon: -71.2850, elevation: 4000, source: ["book"] },
-            { id: 16, name: "Oakes Gulf", state: "NH", region: "Mt. Washington", lat: 44.2500, lon: -71.2917, elevation: 4600, source: ["book"] },
-            { id: 17, name: "Zealand Falls Hut Tour", state: "NH", region: "Pemigewasset", lat: 44.1956, lon: -71.4942, elevation: 2630, source: ["book"] },
-            { id: 18, name: "Zealand Notch Tours", state: "NH", region: "Pemigewasset", lat: 44.1900, lon: -71.4800, elevation: 2500, source: ["book"] },
-            { id: 19, name: "Pemigewasset River Tours", state: "NH", region: "Pemigewasset", lat: 44.1500, lon: -71.5500, elevation: 2000, source: ["book"] },
-            { id: 20, name: "Greeley Ponds", state: "NH", region: "Kancamagus", lat: 44.0167, lon: -71.5167, elevation: 2200, source: ["book"] },
-            { id: 21, name: "Easy Day Trips (White Mtns)", state: "NH", region: "White Mountains", lat: 44.2000, lon: -71.4000, elevation: 2500, source: ["book"] },
+            { id: 1, name: "Mt. Cardigan", state: "NH", region: "Western NH", lat: 43.6497, lon: -71.9148, elevation: 3155, vertical: 1900, maxPitch: 25, difficulty: "moderate", source: ["book"] },
+            { id: 2, name: "Mt. Monadnock", state: "NH", region: "Southern NH", lat: 42.8612, lon: -72.1092, elevation: 3165, vertical: 1800, maxPitch: 28, difficulty: "moderate", source: ["book"] },
+            { id: 3, name: "Mt. Moosilauke", state: "NH", region: "Western Whites", lat: 44.0245, lon: -71.8309, elevation: 4802, vertical: 3200, maxPitch: 32, difficulty: "difficult", source: ["book"] },
+            { id: 4, name: "Mt. Chocorua", state: "NH", region: "Sandwich Range", lat: 43.9542, lon: -71.2734, elevation: 3490, vertical: 2400, maxPitch: 30, difficulty: "difficult", source: ["book"] },
+            { id: 5, name: "Cannon Mountain", state: "NH", region: "Franconia", lat: 44.1565, lon: -71.6984, elevation: 4080, vertical: 2180, maxPitch: 35, difficulty: "difficult", source: ["book", "indy"] },
+            { id: 6, name: "Mt. Garfield", state: "NH", region: "Franconia", lat: 44.1870, lon: -71.6109, elevation: 4500, vertical: 3000, maxPitch: 30, difficulty: "difficult", source: ["book"] },
+            { id: 7, name: "Carter Notch Hut Tours", state: "NH", region: "Carter Range", lat: 44.2592, lon: -71.1958, elevation: 3388, vertical: 1800, maxPitch: 22, difficulty: "moderate", source: ["book"] },
+            { id: 8, name: "Wildcat Valley Trail", state: "NH", region: "Carter Range", lat: 44.2631, lon: -71.2392, elevation: 4422, vertical: 2100, maxPitch: 28, difficulty: "difficult", source: ["book"] },
+            { id: 9, name: "Doublehead Ski Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, maxPitch: 28, difficulty: "moderate", source: ["book"] },
+            { id: 10, name: "Avalanche Brook Trail", state: "NH", region: "Mt. Washington", lat: 44.2706, lon: -71.3033, elevation: 4000, vertical: 1800, maxPitch: 25, difficulty: "moderate", source: ["book"] },
+            { id: 11, name: "Pinkham Notch Tours", state: "NH", region: "Mt. Washington", lat: 44.2572, lon: -71.2533, elevation: 2032, vertical: 800, maxPitch: 18, difficulty: "easy", source: ["book"] },
+            { id: 12, name: "Gulf of Slides", state: "NH", region: "Mt. Washington", lat: 44.2567, lon: -71.2553, elevation: 4100, vertical: 2100, maxPitch: 40, difficulty: "expert", source: ["book"] },
+            { id: 13, name: "Sherburne Ski Trail", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 3950, vertical: 1918, maxPitch: 30, difficulty: "difficult", source: ["book"] },
+            { id: 14, name: "Tuckerman Ravine", state: "NH", region: "Mt. Washington", lat: 44.2631, lon: -71.2748, elevation: 4400, vertical: 2400, maxPitch: 50, difficulty: "extreme", source: ["book"] },
+            { id: 15, name: "Great Gulf", state: "NH", region: "Mt. Washington", lat: 44.2867, lon: -71.2850, elevation: 4000, vertical: 2000, maxPitch: 35, difficulty: "expert", source: ["book"] },
+            { id: 16, name: "Oakes Gulf", state: "NH", region: "Mt. Washington", lat: 44.2500, lon: -71.2917, elevation: 4600, vertical: 2400, maxPitch: 42, difficulty: "extreme", source: ["book"] },
+            { id: 17, name: "Zealand Falls Hut Tour", state: "NH", region: "Pemigewasset", lat: 44.1956, lon: -71.4942, elevation: 2630, vertical: 800, maxPitch: 15, difficulty: "easy", source: ["book"] },
+            { id: 18, name: "Zealand Notch Tours", state: "NH", region: "Pemigewasset", lat: 44.1900, lon: -71.4800, elevation: 2500, vertical: 700, maxPitch: 12, difficulty: "easy", source: ["book"] },
+            { id: 19, name: "Pemigewasset River Tours", state: "NH", region: "Pemigewasset", lat: 44.1500, lon: -71.5500, elevation: 2000, vertical: 500, maxPitch: 10, difficulty: "easy", source: ["book"] },
+            { id: 20, name: "Greeley Ponds", state: "NH", region: "Kancamagus", lat: 44.0167, lon: -71.5167, elevation: 2200, vertical: 600, maxPitch: 12, difficulty: "easy", source: ["book"] },
+            { id: 21, name: "Easy Day Trips (White Mtns)", state: "NH", region: "White Mountains", lat: 44.2000, lon: -71.4000, elevation: 2500, vertical: 800, maxPitch: 15, difficulty: "easy", source: ["book"] },
 
             // NEW HAMPSHIRE - Ski Resorts
-            { id: 64, name: "Loon Mountain", state: "NH", region: "Lincoln", lat: 44.0346, lon: -71.6208, elevation: 3050, source: ["ikon"] },
-            { id: 65, name: "Mount Sunapee", state: "NH", region: "Newbury", lat: 43.3141, lon: -72.0744, elevation: 2743, source: ["ikon", "epic"] },
-            { id: 66, name: "Cranmore Mountain", state: "NH", region: "North Conway", lat: 44.0576, lon: -71.0928, elevation: 2000, source: ["ikon"] },
-            { id: 67, name: "Attitash Mountain", state: "NH", region: "Bartlett", lat: 44.0465, lon: -71.2312, elevation: 2350, source: ["epic"] },
-            { id: 68, name: "Wildcat Mountain", state: "NH", region: "Pinkham Notch", lat: 44.2700, lon: -71.2100, elevation: 4422, source: ["epic"] },
-            { id: 69, name: "Crotched Mountain", state: "NH", region: "Bennington", lat: 42.9981, lon: -71.8740, elevation: 2066, source: ["epic"] },
-            { id: 70, name: "Waterville Valley", state: "NH", region: "Waterville Valley", lat: 43.9673, lon: -71.5581, elevation: 4004, source: ["indy"] },
-            { id: 71, name: "Pats Peak", state: "NH", region: "Henniker", lat: 43.2000, lon: -71.5600, elevation: 1800, source: ["indy"] },
-            { id: 72, name: "Dartmouth Skiway", state: "NH", region: "Lyme", lat: 43.7870, lon: -72.1004, elevation: 2500, source: ["indy"] },
-            { id: 73, name: "Black Mountain", state: "NH", region: "Jackson", lat: 44.0554, lon: -71.1525, elevation: 1750, source: ["indy"] },
-            { id: 74, name: "Tenney Mountain", state: "NH", region: "Plymouth", lat: 43.7359, lon: -71.7934, elevation: 2070, source: ["indy"] },
+            { id: 64, name: "Loon Mountain", state: "NH", region: "Lincoln", lat: 44.0346, lon: -71.6208, elevation: 3050, vertical: 2100, maxPitch: 35, difficulty: "difficult", source: ["ikon"] },
+            { id: 65, name: "Mount Sunapee", state: "NH", region: "Newbury", lat: 43.3141, lon: -72.0744, elevation: 2743, vertical: 1510, maxPitch: 32, difficulty: "moderate", source: ["ikon", "epic"] },
+            { id: 66, name: "Cranmore Mountain", state: "NH", region: "North Conway", lat: 44.0576, lon: -71.0928, elevation: 2000, vertical: 1200, maxPitch: 30, difficulty: "moderate", source: ["ikon"] },
+            { id: 67, name: "Attitash Mountain", state: "NH", region: "Bartlett", lat: 44.0465, lon: -71.2312, elevation: 2350, vertical: 1750, maxPitch: 35, difficulty: "difficult", source: ["epic"] },
+            { id: 68, name: "Wildcat Mountain", state: "NH", region: "Pinkham Notch", lat: 44.2700, lon: -71.2100, elevation: 4422, vertical: 2112, maxPitch: 38, difficulty: "expert", source: ["epic"] },
+            { id: 69, name: "Crotched Mountain", state: "NH", region: "Bennington", lat: 42.9981, lon: -71.8740, elevation: 2066, vertical: 875, maxPitch: 28, difficulty: "moderate", source: ["epic"] },
+            { id: 70, name: "Waterville Valley", state: "NH", region: "Waterville Valley", lat: 43.9673, lon: -71.5581, elevation: 4004, vertical: 2020, maxPitch: 35, difficulty: "difficult", source: ["indy"] },
+            { id: 71, name: "Pats Peak", state: "NH", region: "Henniker", lat: 43.2000, lon: -71.5600, elevation: 1800, vertical: 770, maxPitch: 28, difficulty: "moderate", source: ["indy"] },
+            { id: 72, name: "Dartmouth Skiway", state: "NH", region: "Lyme", lat: 43.7870, lon: -72.1004, elevation: 2500, vertical: 968, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 73, name: "Black Mountain", state: "NH", region: "Jackson", lat: 44.0554, lon: -71.1525, elevation: 1750, vertical: 1100, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 74, name: "Tenney Mountain", state: "NH", region: "Plymouth", lat: 43.7359, lon: -71.7934, elevation: 2070, vertical: 1450, maxPitch: 35, difficulty: "difficult", source: ["indy"] },
 
             // VERMONT - Book Tours
-            { id: 22, name: "Stratton Pond", state: "VT", region: "Southern VT", lat: 43.0833, lon: -72.9333, elevation: 2600, source: ["book"] },
-            { id: 23, name: "Skyline Trail", state: "VT", region: "Southern VT", lat: 43.1500, lon: -72.9000, elevation: 3900, source: ["book"] },
-            { id: 24, name: "Mt. Moosalamoo", state: "VT", region: "Central VT", lat: 43.9333, lon: -73.0167, elevation: 2640, source: ["book"] },
-            { id: 25, name: "Breadloaf Wilderness/Norske Trail", state: "VT", region: "Central VT", lat: 43.9667, lon: -72.9500, elevation: 3800, source: ["book"] },
-            { id: 26, name: "Woodward Mountain Trail", state: "VT", region: "Central VT", lat: 44.0000, lon: -72.9000, elevation: 3100, source: ["book"] },
-            { id: 27, name: "Bolton-Trapp Trail", state: "VT", region: "Northern VT", lat: 44.4167, lon: -72.8667, elevation: 3200, source: ["book"] },
-            { id: 28, name: "Long Trail - Monroe Skyline", state: "VT", region: "Northern VT", lat: 44.3000, lon: -72.8500, elevation: 4000, source: ["book"] },
-            { id: 29, name: "Camel's Hump", state: "VT", region: "Northern VT", lat: 44.3194, lon: -72.8861, elevation: 4083, source: ["book"] },
-            { id: 30, name: "Lake Willoughby", state: "VT", region: "Northeast Kingdom", lat: 44.7500, lon: -72.0333, elevation: 2600, source: ["book"] },
-            { id: 31, name: "Big Jay", state: "VT", region: "Jay Peak", lat: 44.9500, lon: -72.5167, elevation: 3800, source: ["book"] },
-            { id: 32, name: "Bruce Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4393, source: ["book"] },
-            { id: 33, name: "Teardrop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: ["book"] },
-            { id: 34, name: "Skytop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, source: ["book"] },
-            { id: 35, name: "Steeple Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 3800, source: ["book"] },
-            { id: 36, name: "Nebraska Notch", state: "VT", region: "Mt. Mansfield", lat: 44.5000, lon: -72.8333, elevation: 2800, source: ["book"] },
+            { id: 22, name: "Stratton Pond", state: "VT", region: "Southern VT", lat: 43.0833, lon: -72.9333, elevation: 2600, vertical: 600, maxPitch: 12, difficulty: "easy", source: ["book"] },
+            { id: 23, name: "Skyline Trail", state: "VT", region: "Southern VT", lat: 43.1500, lon: -72.9000, elevation: 3900, vertical: 2200, maxPitch: 28, difficulty: "moderate", source: ["book"] },
+            { id: 24, name: "Mt. Moosalamoo", state: "VT", region: "Central VT", lat: 43.9333, lon: -73.0167, elevation: 2640, vertical: 1200, maxPitch: 20, difficulty: "moderate", source: ["book"] },
+            { id: 25, name: "Breadloaf Wilderness/Norske Trail", state: "VT", region: "Central VT", lat: 43.9667, lon: -72.9500, elevation: 3800, vertical: 1600, maxPitch: 22, difficulty: "moderate", source: ["book"] },
+            { id: 26, name: "Woodward Mountain Trail", state: "VT", region: "Central VT", lat: 44.0000, lon: -72.9000, elevation: 3100, vertical: 1400, maxPitch: 25, difficulty: "moderate", source: ["book"] },
+            { id: 27, name: "Bolton-Trapp Trail", state: "VT", region: "Northern VT", lat: 44.4167, lon: -72.8667, elevation: 3200, vertical: 1200, maxPitch: 20, difficulty: "moderate", source: ["book"] },
+            { id: 28, name: "Long Trail - Monroe Skyline", state: "VT", region: "Northern VT", lat: 44.3000, lon: -72.8500, elevation: 4000, vertical: 2500, maxPitch: 30, difficulty: "difficult", source: ["book"] },
+            { id: 29, name: "Camel's Hump", state: "VT", region: "Northern VT", lat: 44.3194, lon: -72.8861, elevation: 4083, vertical: 2800, maxPitch: 35, difficulty: "expert", source: ["book"] },
+            { id: 30, name: "Lake Willoughby", state: "VT", region: "Northeast Kingdom", lat: 44.7500, lon: -72.0333, elevation: 2600, vertical: 1400, maxPitch: 35, difficulty: "difficult", source: ["book"] },
+            { id: 31, name: "Big Jay", state: "VT", region: "Jay Peak", lat: 44.9500, lon: -72.5167, elevation: 3800, vertical: 2000, maxPitch: 35, difficulty: "expert", source: ["book"] },
+            { id: 32, name: "Bruce Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4393, vertical: 2600, maxPitch: 38, difficulty: "expert", source: ["book"] },
+            { id: 33, name: "Teardrop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, vertical: 2200, maxPitch: 40, difficulty: "expert", source: ["book"] },
+            { id: 34, name: "Skytop Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 4000, vertical: 2000, maxPitch: 35, difficulty: "expert", source: ["book"] },
+            { id: 35, name: "Steeple Trail", state: "VT", region: "Mt. Mansfield", lat: 44.5433, lon: -72.8142, elevation: 3800, vertical: 1800, maxPitch: 38, difficulty: "expert", source: ["book"] },
+            { id: 36, name: "Nebraska Notch", state: "VT", region: "Mt. Mansfield", lat: 44.5000, lon: -72.8333, elevation: 2800, vertical: 800, maxPitch: 18, difficulty: "easy", source: ["book"] },
 
             // VERMONT - Ski Resorts
-            { id: 75, name: "Stratton Mountain", state: "VT", region: "Southern VT", lat: 43.0865, lon: -72.9259, elevation: 3940, source: ["ikon"] },
-            { id: 76, name: "Sugarbush Resort", state: "VT", region: "Warren", lat: 44.1200, lon: -72.8300, elevation: 4083, source: ["ikon"] },
-            { id: 77, name: "Killington", state: "VT", region: "Killington", lat: 43.6045, lon: -72.8201, elevation: 4229, source: ["ikon"] },
-            { id: 78, name: "Stowe Mountain", state: "VT", region: "Stowe", lat: 44.5297, lon: -72.7793, elevation: 4395, source: ["ikon", "epic"] },
-            { id: 79, name: "Okemo Mountain", state: "VT", region: "Ludlow", lat: 43.4008, lon: -72.7167, elevation: 3344, source: ["ikon", "epic"] },
-            { id: 80, name: "Mount Snow", state: "VT", region: "West Dover", lat: 42.9590, lon: -72.9237, elevation: 3600, source: ["ikon", "epic"] },
-            { id: 81, name: "Jay Peak", state: "VT", region: "Jay", lat: 44.9245, lon: -72.5257, elevation: 3862, source: ["indy"] },
-            { id: 82, name: "Burke Mountain", state: "VT", region: "East Burke", lat: 44.5712, lon: -71.8923, elevation: 3258, source: ["indy"] },
-            { id: 83, name: "Bolton Valley", state: "VT", region: "Bolton", lat: 44.4492, lon: -72.8396, elevation: 3150, source: ["indy"] },
-            { id: 84, name: "Magic Mountain", state: "VT", region: "Londonderry", lat: 43.2000, lon: -72.7700, elevation: 2850, source: ["indy"] },
+            { id: 75, name: "Stratton Mountain", state: "VT", region: "Southern VT", lat: 43.0865, lon: -72.9259, elevation: 3940, vertical: 2003, maxPitch: 38, difficulty: "difficult", source: ["ikon"] },
+            { id: 76, name: "Sugarbush Resort", state: "VT", region: "Warren", lat: 44.1200, lon: -72.8300, elevation: 4083, vertical: 2650, maxPitch: 38, difficulty: "expert", source: ["ikon"] },
+            { id: 77, name: "Killington", state: "VT", region: "Killington", lat: 43.6045, lon: -72.8201, elevation: 4229, vertical: 3050, maxPitch: 40, difficulty: "expert", source: ["ikon"] },
+            { id: 78, name: "Stowe Mountain", state: "VT", region: "Stowe", lat: 44.5297, lon: -72.7793, elevation: 4395, vertical: 2360, maxPitch: 40, difficulty: "expert", source: ["ikon", "epic"] },
+            { id: 79, name: "Okemo Mountain", state: "VT", region: "Ludlow", lat: 43.4008, lon: -72.7167, elevation: 3344, vertical: 2200, maxPitch: 35, difficulty: "difficult", source: ["ikon", "epic"] },
+            { id: 80, name: "Mount Snow", state: "VT", region: "West Dover", lat: 42.9590, lon: -72.9237, elevation: 3600, vertical: 1700, maxPitch: 35, difficulty: "difficult", source: ["ikon", "epic"] },
+            { id: 81, name: "Jay Peak", state: "VT", region: "Jay", lat: 44.9245, lon: -72.5257, elevation: 3862, vertical: 2153, maxPitch: 40, difficulty: "expert", source: ["indy"] },
+            { id: 82, name: "Burke Mountain", state: "VT", region: "East Burke", lat: 44.5712, lon: -71.8923, elevation: 3258, vertical: 2011, maxPitch: 35, difficulty: "difficult", source: ["indy"] },
+            { id: 83, name: "Bolton Valley", state: "VT", region: "Bolton", lat: 44.4492, lon: -72.8396, elevation: 3150, vertical: 1704, maxPitch: 32, difficulty: "difficult", source: ["indy"] },
+            { id: 84, name: "Magic Mountain", state: "VT", region: "Londonderry", lat: 43.2000, lon: -72.7700, elevation: 2850, vertical: 1500, maxPitch: 42, difficulty: "expert", source: ["indy"] },
 
             // MAINE - Book Tours
-            { id: 37, name: "Acadia National Park", state: "ME", region: "Coastal Maine", lat: 44.3386, lon: -68.2733, elevation: 1530, source: ["book"] },
-            { id: 38, name: "Camden Hills State Park", state: "ME", region: "Midcoast Maine", lat: 44.2333, lon: -69.0667, elevation: 1380, source: ["book"] },
-            { id: 39, name: "Katahdin & Baxter State Park", state: "ME", region: "Northern Maine", lat: 45.9044, lon: -68.9214, elevation: 5269, source: ["book"] },
-            { id: 40, name: "100 Mile Wilderness", state: "ME", region: "Northern Maine", lat: 45.5000, lon: -69.2500, elevation: 2000, source: ["book"] },
-            { id: 41, name: "Grand Canyon of Maine", state: "ME", region: "Northern Maine", lat: 45.4833, lon: -69.4500, elevation: 1800, source: ["book"] },
-            { id: 42, name: "Maine Huts", state: "ME", region: "Western Maine", lat: 45.0833, lon: -70.2167, elevation: 2500, source: ["book"] },
+            { id: 37, name: "Acadia National Park", state: "ME", region: "Coastal Maine", lat: 44.3386, lon: -68.2733, elevation: 1530, vertical: 1000, maxPitch: 22, difficulty: "moderate", source: ["book"] },
+            { id: 38, name: "Camden Hills State Park", state: "ME", region: "Midcoast Maine", lat: 44.2333, lon: -69.0667, elevation: 1380, vertical: 900, maxPitch: 20, difficulty: "easy", source: ["book"] },
+            { id: 39, name: "Katahdin & Baxter State Park", state: "ME", region: "Northern Maine", lat: 45.9044, lon: -68.9214, elevation: 5269, vertical: 4200, maxPitch: 45, difficulty: "extreme", source: ["book"] },
+            { id: 40, name: "100 Mile Wilderness", state: "ME", region: "Northern Maine", lat: 45.5000, lon: -69.2500, elevation: 2000, vertical: 800, maxPitch: 15, difficulty: "easy", source: ["book"] },
+            { id: 41, name: "Grand Canyon of Maine", state: "ME", region: "Northern Maine", lat: 45.4833, lon: -69.4500, elevation: 1800, vertical: 600, maxPitch: 18, difficulty: "moderate", source: ["book"] },
+            { id: 42, name: "Maine Huts", state: "ME", region: "Western Maine", lat: 45.0833, lon: -70.2167, elevation: 2500, vertical: 1000, maxPitch: 15, difficulty: "easy", source: ["book"] },
 
             // MAINE - Ski Resorts
-            { id: 85, name: "Sunday River", state: "ME", region: "Newry", lat: 44.4683, lon: -70.8567, elevation: 3140, source: ["ikon"] },
-            { id: 86, name: "Sugarloaf", state: "ME", region: "Carrabassett Valley", lat: 45.0317, lon: -70.3133, elevation: 4237, source: ["ikon"] },
-            { id: 87, name: "Big Rock", state: "ME", region: "Mars Hill", lat: 46.5220, lon: -67.8297, elevation: 1610, source: ["indy"] },
-            { id: 88, name: "Mt. Abram", state: "ME", region: "Greenwood", lat: 44.3800, lon: -70.7200, elevation: 2000, source: ["indy"] },
-            { id: 95, name: "Saddleback Mountain", state: "ME", region: "Rangeley", lat: 44.9417, lon: -70.5153, elevation: 4120, source: ["indy"] },
-            { id: 96, name: "Black Mountain of Maine", state: "ME", region: "Rumford", lat: 44.5800, lon: -70.6200, elevation: 2214, source: ["indy"] },
-            { id: 97, name: "Camden Snow Bowl", state: "ME", region: "Camden", lat: 44.1833, lon: -69.0833, elevation: 1300, source: ["indy"] },
+            { id: 85, name: "Sunday River", state: "ME", region: "Newry", lat: 44.4683, lon: -70.8567, elevation: 3140, vertical: 2340, maxPitch: 38, difficulty: "expert", source: ["ikon"] },
+            { id: 86, name: "Sugarloaf", state: "ME", region: "Carrabassett Valley", lat: 45.0317, lon: -70.3133, elevation: 4237, vertical: 2820, maxPitch: 42, difficulty: "expert", source: ["ikon"] },
+            { id: 87, name: "Big Rock", state: "ME", region: "Mars Hill", lat: 46.5220, lon: -67.8297, elevation: 1610, vertical: 980, maxPitch: 28, difficulty: "moderate", source: ["indy"] },
+            { id: 88, name: "Mt. Abram", state: "ME", region: "Greenwood", lat: 44.3800, lon: -70.7200, elevation: 2000, vertical: 1150, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 95, name: "Saddleback Mountain", state: "ME", region: "Rangeley", lat: 44.9417, lon: -70.5153, elevation: 4120, vertical: 2000, maxPitch: 38, difficulty: "expert", source: ["indy"] },
+            { id: 96, name: "Black Mountain of Maine", state: "ME", region: "Rumford", lat: 44.5800, lon: -70.6200, elevation: 2214, vertical: 1100, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 97, name: "Camden Snow Bowl", state: "ME", region: "Camden", lat: 44.1833, lon: -69.0833, elevation: 1300, vertical: 950, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
 
             // NEW YORK - Book Tours
-            { id: 43, name: "Jackrabbit Trail", state: "NY", region: "Adirondacks", lat: 44.2833, lon: -74.0000, elevation: 2000, source: ["book"] },
-            { id: 44, name: "Camp Peggy O'Brien Hut Tour", state: "NY", region: "Adirondacks", lat: 44.1167, lon: -74.0500, elevation: 2800, source: ["book"] },
-            { id: 45, name: "Wright Peak Ski Trail", state: "NY", region: "Adirondacks", lat: 44.1517, lon: -73.9808, elevation: 4580, source: ["book"] },
-            { id: 46, name: "Avalanche Pass & Lake Colden", state: "NY", region: "Adirondacks", lat: 44.1333, lon: -73.9667, elevation: 2800, source: ["book"] },
-            { id: 47, name: "Mt. Marcy", state: "NY", region: "Adirondacks", lat: 44.1128, lon: -73.9237, elevation: 5344, source: ["book"] },
+            { id: 43, name: "Jackrabbit Trail", state: "NY", region: "Adirondacks", lat: 44.2833, lon: -74.0000, elevation: 2000, vertical: 600, maxPitch: 12, difficulty: "easy", source: ["book"] },
+            { id: 44, name: "Camp Peggy O'Brien Hut Tour", state: "NY", region: "Adirondacks", lat: 44.1167, lon: -74.0500, elevation: 2800, vertical: 1200, maxPitch: 18, difficulty: "moderate", source: ["book"] },
+            { id: 45, name: "Wright Peak Ski Trail", state: "NY", region: "Adirondacks", lat: 44.1517, lon: -73.9808, elevation: 4580, vertical: 3400, maxPitch: 38, difficulty: "expert", source: ["book"] },
+            { id: 46, name: "Avalanche Pass & Lake Colden", state: "NY", region: "Adirondacks", lat: 44.1333, lon: -73.9667, elevation: 2800, vertical: 1200, maxPitch: 20, difficulty: "moderate", source: ["book"] },
+            { id: 47, name: "Mt. Marcy", state: "NY", region: "Adirondacks", lat: 44.1128, lon: -73.9237, elevation: 5344, vertical: 3200, maxPitch: 35, difficulty: "expert", source: ["book"] },
 
             // NEW YORK - Ski Resorts
-            { id: 89, name: "Hunter Mountain", state: "NY", region: "Hunter", lat: 42.1779, lon: -74.2304, elevation: 3200, source: ["epic"] },
-            { id: 90, name: "Greek Peak", state: "NY", region: "Virgil", lat: 42.5100, lon: -76.1400, elevation: 2100, source: ["indy"] },
-            { id: 91, name: "Titus Mountain", state: "NY", region: "Malone", lat: 44.7600, lon: -74.2300, elevation: 2025, source: ["indy"] },
+            { id: 89, name: "Hunter Mountain", state: "NY", region: "Hunter", lat: 42.1779, lon: -74.2304, elevation: 3200, vertical: 1600, maxPitch: 38, difficulty: "difficult", source: ["epic"] },
+            { id: 90, name: "Greek Peak", state: "NY", region: "Virgil", lat: 42.5100, lon: -76.1400, elevation: 2100, vertical: 952, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 91, name: "Titus Mountain", state: "NY", region: "Malone", lat: 44.7600, lon: -74.2300, elevation: 2025, vertical: 1200, maxPitch: 28, difficulty: "moderate", source: ["indy"] },
 
             // MASSACHUSETTS - Book Tours
-            { id: 48, name: "Thunderbolt Ski Trail", state: "MA", region: "Berkshires", lat: 42.6375, lon: -73.1667, elevation: 3491, source: ["book"] },
+            { id: 48, name: "Thunderbolt Ski Trail", state: "MA", region: "Berkshires", lat: 42.6375, lon: -73.1667, elevation: 3491, vertical: 2175, maxPitch: 40, difficulty: "extreme", source: ["book"] },
 
             // MASSACHUSETTS - Ski Resorts
-            { id: 92, name: "Jiminy Peak", state: "MA", region: "Hancock", lat: 42.5442, lon: -73.2862, elevation: 2380, source: ["ikon"] },
-            { id: 93, name: "Bousquet Mountain", state: "MA", region: "Pittsfield", lat: 42.4190, lon: -73.2770, elevation: 1875, source: ["indy"] },
-            { id: 98, name: "Berkshire East", state: "MA", region: "Charlemont", lat: 42.6258, lon: -72.8806, elevation: 1980, source: ["indy"] },
-            { id: 99, name: "Catamount", state: "MA", region: "South Egremont", lat: 42.1692, lon: -73.4847, elevation: 1000, source: ["indy"] },
+            { id: 92, name: "Jiminy Peak", state: "MA", region: "Hancock", lat: 42.5442, lon: -73.2862, elevation: 2380, vertical: 1150, maxPitch: 30, difficulty: "moderate", source: ["ikon"] },
+            { id: 93, name: "Bousquet Mountain", state: "MA", region: "Pittsfield", lat: 42.4190, lon: -73.2770, elevation: 1875, vertical: 750, maxPitch: 28, difficulty: "moderate", source: ["indy"] },
+            { id: 98, name: "Berkshire East", state: "MA", region: "Charlemont", lat: 42.6258, lon: -72.8806, elevation: 1980, vertical: 1180, maxPitch: 32, difficulty: "moderate", source: ["indy"] },
+            { id: 99, name: "Catamount", state: "MA", region: "South Egremont", lat: 42.1692, lon: -73.4847, elevation: 1000, vertical: 1000, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
 
             // PENNSYLVANIA - Ski Resorts
-            { id: 94, name: "Ski Big Bear", state: "PA", region: "Lackawaxen", lat: 41.4866, lon: -75.0592, elevation: 2175, source: ["indy"] },
+            { id: 94, name: "Ski Big Bear", state: "PA", region: "Lackawaxen", lat: 41.4866, lon: -75.0592, elevation: 2175, vertical: 650, maxPitch: 25, difficulty: "moderate", source: ["indy"] },
 
             // GBA GLADES - New Hampshire
-            { id: 49, name: "The Pike Glades", state: "NH", region: "Pike", lat: 44.0500, lon: -71.9500, elevation: 2200, vertical: 1500, source: ["gba"], address: "2719 Mt Moosilauke Highway, Pike, NH" },
-            { id: 50, name: "Maple Villa Glade", state: "NH", region: "Intervale", lat: 44.0833, lon: -71.1167, elevation: 2200, vertical: 1700, source: ["gba"], address: "70 East Branch Road, Intervale, NH" },
-            { id: 51, name: "West Side Glade", state: "NH", region: "Bartlett", lat: 44.0667, lon: -71.3000, elevation: 1600, vertical: 600, source: ["gba"], address: "629 West Side Road, Bartlett, NH" },
-            { id: 52, name: "Ski Tow Glade", state: "NH", region: "Lancaster", lat: 44.4833, lon: -71.5667, elevation: 2000, vertical: 700, source: ["gba"], address: "Route 3, Prospect Street, Lancaster, NH" },
-            { id: 53, name: "PRKR MTN Glades", state: "NH", region: "Littleton", lat: 44.3000, lon: -71.7667, elevation: 1800, vertical: 400, source: ["gba"], address: "Scout Lot, Littleton, NH" },
-            { id: 54, name: "Baldface", state: "NH", region: "Chatham", lat: 44.2333, lon: -71.0000, elevation: 3000, vertical: 2500, source: ["gba"], address: "Baldface Circle Trail (Rt. 113), Chatham, NH" },
-            { id: 55, name: "Cooley-Jericho Glade", state: "NH", region: "Franconia", lat: 44.2167, lon: -71.7500, elevation: 2600, vertical: 800, source: ["gba"], address: "12 Trumpet Round Rd, Easton, NH" },
-            { id: 56, name: "Hypnosis Glade", state: "NH", region: "Madison", lat: 43.9000, lon: -71.1333, elevation: 1400, vertical: 400, source: ["gba"], address: "White Mountain Hypnosis Center, Madison, NH" },
-            { id: 57, name: "Bill Hill Glade", state: "NH", region: "Gorham", lat: 44.3833, lon: -71.1833, elevation: 1800, vertical: 600, source: ["gba"], address: "Bellevue Road, Gorham, NH" },
-            { id: 58, name: "Page Hill", state: "NH", region: "Tamworth", lat: 43.8500, lon: -71.2667, elevation: 1350, vertical: 350, source: ["gba"], address: "388 Page Hill Rd, Tamworth, NH" },
+            { id: 49, name: "The Pike Glades", state: "NH", region: "Pike", lat: 44.0500, lon: -71.9500, elevation: 2200, vertical: 1500, maxPitch: 30, difficulty: "difficult", source: ["gba"], address: "2719 Mt Moosilauke Highway, Pike, NH" },
+            { id: 50, name: "Maple Villa Glade", state: "NH", region: "Intervale", lat: 44.0833, lon: -71.1167, elevation: 2200, vertical: 1700, maxPitch: 32, difficulty: "difficult", source: ["gba"], address: "70 East Branch Road, Intervale, NH" },
+            { id: 51, name: "West Side Glade", state: "NH", region: "Bartlett", lat: 44.0667, lon: -71.3000, elevation: 1600, vertical: 600, maxPitch: 25, difficulty: "moderate", source: ["gba"], address: "629 West Side Road, Bartlett, NH" },
+            { id: 52, name: "Ski Tow Glade", state: "NH", region: "Lancaster", lat: 44.4833, lon: -71.5667, elevation: 2000, vertical: 700, maxPitch: 25, difficulty: "moderate", source: ["gba"], address: "Route 3, Prospect Street, Lancaster, NH" },
+            { id: 53, name: "PRKR MTN Glades", state: "NH", region: "Littleton", lat: 44.3000, lon: -71.7667, elevation: 1800, vertical: 400, maxPitch: 22, difficulty: "easy", source: ["gba"], address: "Scout Lot, Littleton, NH" },
+            { id: 54, name: "Baldface", state: "NH", region: "Chatham", lat: 44.2333, lon: -71.0000, elevation: 3000, vertical: 2500, maxPitch: 35, difficulty: "expert", source: ["gba"], address: "Baldface Circle Trail (Rt. 113), Chatham, NH" },
+            { id: 55, name: "Cooley-Jericho Glade", state: "NH", region: "Franconia", lat: 44.2167, lon: -71.7500, elevation: 2600, vertical: 800, maxPitch: 28, difficulty: "moderate", source: ["gba"], address: "12 Trumpet Round Rd, Easton, NH" },
+            { id: 56, name: "Hypnosis Glade", state: "NH", region: "Madison", lat: 43.9000, lon: -71.1333, elevation: 1400, vertical: 400, maxPitch: 22, difficulty: "easy", source: ["gba"], address: "White Mountain Hypnosis Center, Madison, NH" },
+            { id: 57, name: "Bill Hill Glade", state: "NH", region: "Gorham", lat: 44.3833, lon: -71.1833, elevation: 1800, vertical: 600, maxPitch: 25, difficulty: "moderate", source: ["gba"], address: "Bellevue Road, Gorham, NH" },
+            { id: 58, name: "Page Hill", state: "NH", region: "Tamworth", lat: 43.8500, lon: -71.2667, elevation: 1350, vertical: 350, maxPitch: 20, difficulty: "easy", source: ["gba"], address: "388 Page Hill Rd, Tamworth, NH" },
 
             // GBA GLADES - Maine
-            { id: 59, name: "Black & White Glade", state: "ME", region: "Rumford", lat: 44.5500, lon: -70.5500, elevation: 2214, vertical: 1400, source: ["gba"], address: "East Andover Road at Black Mountain of Maine" },
+            { id: 59, name: "Black & White Glade", state: "ME", region: "Rumford", lat: 44.5500, lon: -70.5500, elevation: 2214, vertical: 1400, maxPitch: 30, difficulty: "difficult", source: ["gba"], address: "East Andover Road at Black Mountain of Maine" },
 
             // GBA CCC TRAILS
-            { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, source: ["gba"], address: "Jackson, NH" },
-            { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, source: ["gba"], address: "Jackson, NH" },
-            { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, source: ["gba"], address: "Pinkham Notch, NH" },
-            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, source: ["gba"], address: "Pinkham Notch, NH" }
+            { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, maxPitch: 28, difficulty: "moderate", source: ["gba"], address: "Jackson, NH" },
+            { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, maxPitch: 28, difficulty: "moderate", source: ["gba"], address: "Jackson, NH" },
+            { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, maxPitch: 32, difficulty: "difficult", source: ["gba"], address: "Pinkham Notch, NH" },
+            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, maxPitch: 38, difficulty: "expert", source: ["gba"], address: "Pinkham Notch, NH" }
         ];
 
         // ==================== STATE ====================
@@ -1607,9 +1641,16 @@
             tour.source.forEach(s => {
                 badges.push(`<span class="tour-badge ${s}">${sourceLabels[s] || s}</span>`);
             });
+            if (tour.difficulty) {
+                const diffLabels = { easy: 'Easy', moderate: 'Moderate', difficult: 'Difficult', expert: 'Expert', extreme: 'Extreme' };
+                badges.push(`<span class="tour-badge difficulty-${tour.difficulty}">${diffLabels[tour.difficulty]}</span>`);
+            }
             badges.push(`<span class="tour-badge elevation">${tour.elevation.toLocaleString()} ft</span>`);
             if (tour.vertical) {
-                badges.push(`<span class="tour-badge vertical">${tour.vertical} ft vert</span>`);
+                badges.push(`<span class="tour-badge vertical">${tour.vertical.toLocaleString()} ft vert</span>`);
+            }
+            if (tour.maxPitch) {
+                badges.push(`<span class="tour-badge pitch">${tour.maxPitch}°</span>`);
             }
 
             card.innerHTML = `
@@ -1838,6 +1879,16 @@
                         <div class="info-item">
                             <div class="info-label">Vertical</div>
                             <div class="info-value" style="font-family:var(--mono)">${tour.vertical.toLocaleString()} ft</div>
+                        </div>` : ''}
+                        ${tour.maxPitch ? `
+                        <div class="info-item">
+                            <div class="info-label">Max Pitch</div>
+                            <div class="info-value" style="font-family:var(--mono)">${tour.maxPitch}°</div>
+                        </div>` : ''}
+                        ${tour.difficulty ? `
+                        <div class="info-item">
+                            <div class="info-label">Difficulty</div>
+                            <div class="info-value"><span class="tour-badge difficulty-${tour.difficulty}" style="font-size:0.75rem;">${tour.difficulty.charAt(0).toUpperCase() + tour.difficulty.slice(1)}</span></div>
                         </div>` : ''}
                         <div class="info-item">
                             <div class="info-label">Coordinates</div>
