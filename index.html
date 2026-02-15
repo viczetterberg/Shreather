@@ -7,8 +7,8 @@
 
     <!-- PWA Meta Tags -->
     <meta name="description" content="Real-time snow conditions for backcountry skiing tours across New England and New York">
-    <meta name="theme-color" content="#0a0a0f">
-    <meta name="background-color" content="#0a0a0f">
+    <meta name="theme-color" content="#1a1f2e">
+    <meta name="background-color" content="#1a1f2e">
 
     <!-- iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -33,45 +33,61 @@
     <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
 
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
     <style>
         :root {
-            /* Dark mode (default) */
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-card: rgba(255, 255, 255, 0.05);
-            --bg-card-hover: rgba(255, 255, 255, 0.1);
-            --bg-input: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --text-muted: #666666;
+            /* Dark mode (default) — muted earth/slate tones */
+            --bg-primary: #1a1f2e;
+            --bg-secondary: #242936;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --bg-input: rgba(255, 255, 255, 0.06);
+            --text-primary: #e0e4eb;
+            --text-secondary: #9ca3b0;
+            --text-muted: #5c6370;
             --border-color: rgba(255, 255, 255, 0.08);
-            --accent-blue: #00d4ff;
-            --accent-purple: #7b2cbf;
-            --accent-pink: #ff6b9d;
-            --accent-red: #ff6b6b;
-            --accent-yellow: #ffd93d;
-            --accent-green: #4ade80;
+            --accent-blue: #5b8fb9;
+            --accent-purple: #8b7bb5;
+            --accent-pink: #c96567;
+            --accent-red: #c96567;
+            --accent-yellow: #d9a95b;
+            --accent-green: #7a9d7e;
+            --accent-slate: #6b7a8f;
             --shadow: rgba(0, 0, 0, 0.4);
-            --modal-bg: rgba(0, 0, 0, 0.85);
+            --modal-bg: rgba(18, 22, 32, 0.9);
         }
 
         [data-theme="light"] {
-            --bg-primary: #f5f7fa;
-            --bg-secondary: #ffffff;
+            --bg-primary: #f0ede8;
+            --bg-secondary: #faf8f5;
             --bg-card: rgba(0, 0, 0, 0.03);
-            --bg-card-hover: rgba(0, 0, 0, 0.06);
-            --bg-input: rgba(0, 0, 0, 0.05);
-            --text-primary: #1a1a2e;
-            --text-secondary: #555555;
-            --text-muted: #888888;
+            --bg-card-hover: rgba(0, 0, 0, 0.05);
+            --bg-input: rgba(0, 0, 0, 0.04);
+            --text-primary: #2c3040;
+            --text-secondary: #5a5f6e;
+            --text-muted: #8a8e99;
             --border-color: rgba(0, 0, 0, 0.1);
-            --accent-blue: #0099cc;
-            --accent-purple: #6b21a8;
+            --accent-blue: #4a7a9b;
+            --accent-purple: #7a6aa5;
+            --accent-pink: #b55557;
+            --accent-red: #b55557;
+            --accent-yellow: #c49345;
+            --accent-green: #6a8a6e;
+            --accent-slate: #5b6a7f;
             --shadow: rgba(0, 0, 0, 0.1);
-            --modal-bg: rgba(255, 255, 255, 0.95);
+            --modal-bg: rgba(240, 237, 232, 0.95);
+        }
+
+        /* Monospace for all numeric/data elements */
+        .weather-value, .stat-value, .condition-value, .forecast-snow,
+        .hourly-temp, .daily-value, .tour-badge.elevation, .tour-badge.vertical {
+            font-family: 'Courier New', Consolas, Monaco, monospace;
         }
 
         * {
@@ -99,7 +115,7 @@
             text-align: center;
             padding: 40px 20px;
             background: var(--bg-secondary);
-            border-radius: 20px;
+            border-radius: 4px;
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
             position: relative;
@@ -116,7 +132,7 @@
         .icon-btn {
             width: 44px;
             height: 44px;
-            border-radius: 12px;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--bg-card);
             color: var(--text-secondary);
@@ -131,7 +147,6 @@
         .icon-btn:hover {
             background: var(--bg-card-hover);
             color: var(--accent-blue);
-            transform: translateY(-2px);
         }
 
         .icon-btn.active {
@@ -143,10 +158,7 @@
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
         }
 
         .subtitle {
@@ -199,7 +211,7 @@
         .search-box {
             padding: 12px 20px;
             border: 1px solid var(--border-color);
-            border-radius: 30px;
+            border-radius: 4px;
             font-size: 1rem;
             width: 280px;
             background: var(--bg-input);
@@ -214,13 +226,13 @@
 
         .search-box:focus {
             border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(91, 143, 185, 0.2);
         }
 
         .filter-btn {
             padding: 10px 18px;
             border: 1px solid var(--border-color);
-            border-radius: 25px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 0.9rem;
             transition: all 0.2s ease;
@@ -235,15 +247,15 @@
         }
 
         .filter-btn.active {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            background: var(--accent-blue);
             color: white;
-            border-color: transparent;
+            border-color: var(--accent-blue);
         }
 
         .sort-select {
             padding: 10px 16px;
             border: 1px solid var(--border-color);
-            border-radius: 25px;
+            border-radius: 4px;
             font-size: 0.9rem;
             background: var(--bg-card);
             color: var(--text-primary);
@@ -273,18 +285,16 @@
         /* Tour Card */
         .tour-card {
             background: var(--bg-card);
-            border-radius: 16px;
+            border-radius: 4px;
             padding: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             border: 1px solid var(--border-color);
             cursor: pointer;
             position: relative;
         }
 
         .tour-card:hover {
-            transform: translateY(-4px);
             background: var(--bg-card-hover);
-            box-shadow: 0 12px 40px var(--shadow);
             border-color: var(--accent-blue);
         }
 
@@ -342,7 +352,7 @@
         .tour-badge {
             font-size: 0.7rem;
             padding: 3px 8px;
-            border-radius: 10px;
+            border-radius: 3px;
             font-weight: 500;
         }
 
@@ -377,7 +387,7 @@
         .weather-item {
             background: var(--bg-secondary);
             padding: 12px 8px;
-            border-radius: 12px;
+            border-radius: 4px;
             text-align: center;
         }
 
@@ -413,7 +423,7 @@
             min-width: 45px;
             background: var(--bg-secondary);
             padding: 8px 4px;
-            border-radius: 10px;
+            border-radius: 4px;
             text-align: center;
         }
 
@@ -473,7 +483,7 @@
 
         .modal {
             background: var(--bg-secondary);
-            border-radius: 24px;
+            border-radius: 6px;
             width: 100%;
             max-width: 900px;
             max-height: 90vh;
@@ -509,7 +519,7 @@
         .modal-close {
             width: 40px;
             height: 40px;
-            border-radius: 12px;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--bg-card);
             color: var(--text-secondary);
@@ -555,7 +565,7 @@
         .condition-card {
             background: var(--bg-card);
             padding: 20px;
-            border-radius: 16px;
+            border-radius: 4px;
             text-align: center;
             border: 1px solid var(--border-color);
         }
@@ -589,7 +599,7 @@
             flex: 0 0 auto;
             background: var(--bg-card);
             padding: 15px;
-            border-radius: 14px;
+            border-radius: 4px;
             text-align: center;
             min-width: 80px;
             border: 1px solid var(--border-color);
@@ -632,7 +642,7 @@
             align-items: center;
             padding: 15px;
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
             gap: 15px;
         }
@@ -656,7 +666,7 @@
 
         .daily-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            background: var(--accent-blue);
             border-radius: 3px;
         }
 
@@ -698,7 +708,7 @@
         .info-item {
             background: var(--bg-card);
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
         }
 
@@ -805,6 +815,146 @@
             }
         }
 
+        /* View toggle */
+        .view-toggle {
+            display: inline-flex;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .view-toggle-btn {
+            padding: 10px 24px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .view-toggle-btn:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .view-toggle-btn:hover:not(.active) {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* Map */
+        #map-container {
+            display: none;
+            height: 70vh;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        #map-container.active {
+            display: block;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .snow-marker {
+            background: none;
+            border: none;
+        }
+
+        .snow-marker-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 22px;
+            padding: 0 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .snow-marker-label.has-snow {
+            background: var(--accent-blue);
+        }
+
+        .snow-marker-label.no-snow {
+            background: var(--accent-slate);
+            opacity: 0.7;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-radius: 4px !important;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px var(--shadow) !important;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-secondary) !important;
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .leaflet-popup-content .popup-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .leaflet-popup-content .popup-region {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .leaflet-popup-content .popup-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            font-size: 0.85rem;
+        }
+
+        .leaflet-popup-content .popup-stats span {
+            color: var(--text-secondary);
+        }
+
+        .leaflet-popup-content .popup-detail-btn {
+            display: block;
+            width: 100%;
+            padding: 6px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .leaflet-popup-content .popup-detail-btn:hover {
+            opacity: 0.9;
+        }
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
@@ -877,7 +1027,7 @@
             right: 20px;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 4px;
             padding: 20px;
             display: none;
             z-index: 1000;
@@ -902,7 +1052,7 @@
         .install-prompt .steps {
             background: var(--bg-card);
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 4px;
             margin-bottom: 15px;
         }
 
@@ -914,7 +1064,7 @@
         .install-prompt button {
             padding: 10px 20px;
             border: none;
-            border-radius: 20px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 0.9rem;
         }
@@ -979,6 +1129,13 @@
             <button class="filter-btn" data-filter="ma">MA</button>
         </div>
 
+        <div style="text-align:center;margin-bottom:20px;">
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" id="card-view-btn">Cards</button>
+                <button class="view-toggle-btn" id="map-view-btn">Map</button>
+            </div>
+        </div>
+        <div id="map-container"><div id="map"></div></div>
         <div id="tours-container"></div>
     </div>
 
@@ -1000,8 +1157,8 @@
 
     <footer>
         <p>Data sources: <a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a> by David Goodman | <a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a></p>
-        <p style="margin-top: 10px;">Weather data from <a href="https://open-meteo.com/" target="_blank">Open-Meteo API</a> (free, open-source)</p>
-        <p style="margin-top: 15px; font-size: 0.8rem;">Snow depth estimates are modeled data and may not reflect actual conditions. Always check local reports and avalanche forecasts before heading out.</p>
+        <p style="margin-top: 10px;">Weather data from <a href="https://open-meteo.com/" target="_blank">Open-Meteo API</a> | Snow depth from <a href="https://www.nohrsc.noaa.gov/nsa/" target="_blank">NOAA National Snow Analysis</a></p>
+        <p style="margin-top: 15px; font-size: 0.8rem;">Snow depth is from NOAA's daily snow analysis (observed + modeled at 1km resolution) and may not exactly match trail conditions. Always check local reports and avalanche forecasts before heading out.</p>
     </footer>
 
     <!-- iOS Install Prompt -->
@@ -1101,11 +1258,15 @@
 
         // ==================== STATE ====================
         const weatherCache = new Map();
+        const snowDepthCache = new Map();
         const tourWeatherData = new Map();
         const CACHE_DURATION = 15 * 60 * 1000;
         let favorites = JSON.parse(localStorage.getItem('backcountry-favorites') || '[]');
         let showFavoritesOnly = false;
         let currentTheme = localStorage.getItem('backcountry-theme') || 'dark';
+        let map = null;
+        let mapMarkers = [];
+        let currentView = 'card';
 
         // ==================== WEATHER API ====================
         async function fetchWeather(lat, lon) {
@@ -1129,7 +1290,37 @@
             }
         }
 
-        function processWeatherData(weather) {
+        async function fetchSnowDepthNOHRSC(lat, lon) {
+            const cacheKey = `nohrsc_${lat.toFixed(2)},${lon.toFixed(2)}`;
+            const cached = snowDepthCache.get(cacheKey);
+            if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+                return cached.data;
+            }
+
+            try {
+                const url = `https://mapservices.weather.noaa.gov/raster/rest/services/snow/NOHRSC_Snow_Analysis/MapServer/identify?geometry=${lon},${lat}&geometryType=esriGeometryPoint&sr=4326&layers=all:0&tolerance=1&mapExtent=${lon-1},${lat-1},${lon+1},${lat+1}&imageDisplay=400,400,96&returnGeometry=false&f=json`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const imageResult = data.results && data.results.find(r => r.layerName === 'Image');
+                if (imageResult && imageResult.attributes) {
+                    const pixelValue = parseFloat(imageResult.attributes['Service Pixel Value']);
+                    if (!isNaN(pixelValue) && pixelValue >= 0) {
+                        const result = { snowDepth: Math.round(pixelValue) };
+                        snowDepthCache.set(cacheKey, { data: result, timestamp: Date.now() });
+                        return result;
+                    }
+                }
+
+                snowDepthCache.set(cacheKey, { data: null, timestamp: Date.now() });
+                return null;
+            } catch (error) {
+                console.error('NOHRSC snow depth error:', error);
+                return null;
+            }
+        }
+
+        function processWeatherData(weather, nohrscData) {
             if (!weather || !weather.hourly) return null;
 
             const { hourly, daily } = weather;
@@ -1143,11 +1334,16 @@
                 }
             }
 
+            // Snow depth: prefer NOHRSC observation, fall back to Open-Meteo model
+            const modelSnowDepth = Math.round((hourly.snow_depth[currentIndex] || 0) * 39.37);
+            const snowDepthValue = nohrscData ? nohrscData.snowDepth : modelSnowDepth;
+
             // Current conditions
             const current = {
                 temp: Math.round(hourly.temperature_2m[currentIndex] * 9/5 + 32),
                 humidity: hourly.relative_humidity_2m[currentIndex],
-                snowDepth: Math.round((hourly.snow_depth[currentIndex] || 0) * 39.37),
+                snowDepth: snowDepthValue,
+                snowDepthSource: nohrscData ? 'nohrsc' : 'model',
                 wind: Math.round(hourly.windspeed_10m[currentIndex] * 0.621),
                 gusts: Math.round((hourly.windgusts_10m[currentIndex] || 0) * 0.621),
                 visibility: Math.round((hourly.visibility[currentIndex] || 10000) / 1609.34),
@@ -1242,11 +1438,15 @@
             let forecastHtml = '';
 
             if (weather) {
+                const sourceLabel = weather.current.snowDepthSource === 'nohrsc'
+                    ? '<div class="weather-label" style="margin-top:2px;font-size:0.55rem;opacity:0.7;">NOAA obs.</div>'
+                    : '';
                 weatherHtml = `
                     <div class="weather-grid">
                         <div class="weather-item">
                             <div class="weather-label">Snow Depth</div>
                             <div class="weather-value depth">${weather.current.snowDepth}"</div>
+                            ${sourceLabel}
                         </div>
                         <div class="weather-item">
                             <div class="weather-label">24h Snow</div>
@@ -1332,7 +1532,7 @@
 
                 const title = document.createElement('h2');
                 title.className = 'section-title';
-                title.innerHTML = `<span>&#9971;</span> ${stateNames[state]} <span style="font-size: 0.9rem; color: var(--text-muted);">(${stateGroups[state].length})</span>`;
+                title.innerHTML = `${stateNames[state]} <span style="font-size: 0.9rem; color: var(--text-muted);">(${stateGroups[state].length})</span>`;
                 section.appendChild(title);
 
                 const grid = document.createElement('div');
@@ -1342,14 +1542,18 @@
                     const card = renderTourCard(tour);
                     grid.appendChild(card);
 
-                    // Fetch weather async
-                    fetchWeather(tour.lat, tour.lon).then(weather => {
-                        const processed = processWeatherData(weather);
+                    // Fetch weather + NOHRSC snow depth async
+                    Promise.all([
+                        fetchWeather(tour.lat, tour.lon),
+                        fetchSnowDepthNOHRSC(tour.lat, tour.lon)
+                    ]).then(([weather, nohrscData]) => {
+                        const processed = processWeatherData(weather, nohrscData);
                         if (processed) {
                             tourWeatherData.set(tour.id, processed);
                             const newCard = renderTourCard(tour);
                             card.replaceWith(newCard);
                             updateStats();
+                            if (currentView === 'map') updateMapMarkers();
                         }
                     });
                 }
@@ -1379,12 +1583,15 @@
                 // Current Conditions
                 bodyHtml += `
                     <div class="modal-section">
-                        <h3 class="modal-section-title"><span>&#127777;</span> Current Conditions</h3>
+                        <h3 class="modal-section-title">Current Conditions</h3>
                         <div class="current-conditions">
                             <div class="condition-card">
                                 <div class="condition-icon">${getWeatherIcon(weather.current.weatherCode)}</div>
                                 <div class="condition-value" style="color: var(--accent-purple);">${weather.current.snowDepth}"</div>
                                 <div class="condition-label">Snow Depth</div>
+                                ${weather.current.snowDepthSource === 'nohrsc'
+                                    ? '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:4px;">NOAA Snow Analysis</div>'
+                                    : ''}
                             </div>
                             <div class="condition-card">
                                 <div class="condition-icon">&#10052;</div>
@@ -1429,7 +1636,7 @@
                 if (weather.hourlyForecast.length > 0) {
                     bodyHtml += `
                         <div class="modal-section">
-                            <h3 class="modal-section-title"><span>&#128336;</span> Hourly Forecast (Next 24h)</h3>
+                            <h3 class="modal-section-title">Hourly Forecast (Next 24h)</h3>
                             <div class="hourly-scroll">
                     `;
                     weather.hourlyForecast.forEach(hour => {
@@ -1455,7 +1662,7 @@
 
                     bodyHtml += `
                         <div class="modal-section">
-                            <h3 class="modal-section-title"><span>&#128197;</span> 7-Day Forecast (${weather.snow7d}" total snow)</h3>
+                            <h3 class="modal-section-title">7-Day Forecast (${weather.snow7d}" total snow)</h3>
                             <div class="daily-forecast">
                     `;
 
@@ -1499,7 +1706,7 @@
             // Location Info
             bodyHtml += `
                 <div class="modal-section">
-                    <h3 class="modal-section-title"><span>&#128205;</span> Location Details</h3>
+                    <h3 class="modal-section-title">Location Details</h3>
                     <div class="location-info">
                         <div class="info-item">
                             <div class="info-label">Coordinates</div>
@@ -1606,6 +1813,10 @@
             });
 
             applySorting();
+
+            if (currentView === 'map') {
+                updateMapMarkers();
+            }
         }
 
         function applySorting() {
@@ -1657,6 +1868,105 @@
             document.getElementById('best-snow').textContent = bestDepth + '"';
         }
 
+        // ==================== MAP ====================
+        function initMap() {
+            if (map) return;
+            map = L.map('map').setView([44.0, -71.5], 7);
+            L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors'
+            }).addTo(map);
+        }
+
+        function updateMapMarkers() {
+            if (!map) return;
+
+            // Clear existing markers
+            mapMarkers.forEach(m => map.removeLayer(m));
+            mapMarkers = [];
+
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            const visibleTours = tours.filter(tour => {
+                if (showFavoritesOnly && !favorites.includes(tour.id)) return false;
+                if (activeFilter !== 'all') {
+                    if (['nh', 'vt', 'me', 'ny', 'ma'].includes(activeFilter)) {
+                        if (tour.state.toLowerCase() !== activeFilter) return false;
+                    } else {
+                        if (tour.source !== activeFilter) return false;
+                    }
+                }
+                if (searchTerm && !tour.name.toLowerCase().includes(searchTerm)) return false;
+                return true;
+            });
+
+            const bounds = [];
+
+            visibleTours.forEach(tour => {
+                const weather = tourWeatherData.get(tour.id);
+                const tomorrowSnow = weather?.dailyForecast?.[1]?.snow ?? '—';
+                const hasSnow = typeof tomorrowSnow === 'number' && tomorrowSnow > 0;
+                const label = typeof tomorrowSnow === 'number' ? tomorrowSnow + '"' : '—';
+
+                const icon = L.divIcon({
+                    className: 'snow-marker',
+                    html: `<div class="snow-marker-label ${hasSnow ? 'has-snow' : 'no-snow'}">${label}</div>`,
+                    iconSize: [32, 22],
+                    iconAnchor: [16, 11]
+                });
+
+                const marker = L.marker([tour.lat, tour.lon], { icon }).addTo(map);
+
+                const depth = weather?.current?.snowDepth ?? '—';
+                const temp = weather?.current?.temp ?? '—';
+
+                marker.bindPopup(`
+                    <div class="popup-title">${tour.name}</div>
+                    <div class="popup-region">${tour.region}, ${tour.state}</div>
+                    <div class="popup-stats">
+                        <div><span>Depth:</span> ${depth}"</div>
+                        <div><span>Temp:</span> ${temp}°F</div>
+                        <div><span>Tmrw:</span> ${label}</div>
+                        <div><span>Elev:</span> ${tour.elevation}'</div>
+                    </div>
+                    <button class="popup-detail-btn" onclick="openModal(tours.find(t=>t.id===${tour.id}))">View Details</button>
+                `, { maxWidth: 220 });
+
+                mapMarkers.push(marker);
+                bounds.push([tour.lat, tour.lon]);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
+
+        function switchView(view) {
+            currentView = view;
+            const mapContainer = document.getElementById('map-container');
+            const toursContainer = document.getElementById('tours-container');
+            const cardBtn = document.getElementById('card-view-btn');
+            const mapBtn = document.getElementById('map-view-btn');
+
+            if (view === 'map') {
+                mapContainer.classList.add('active');
+                toursContainer.style.display = 'none';
+                mapBtn.classList.add('active');
+                cardBtn.classList.remove('active');
+                initMap();
+                setTimeout(() => {
+                    map.invalidateSize();
+                    updateMapMarkers();
+                }, 100);
+            } else {
+                mapContainer.classList.remove('active');
+                toursContainer.style.display = '';
+                cardBtn.classList.add('active');
+                mapBtn.classList.remove('active');
+            }
+        }
+
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
             // Set initial theme
@@ -1691,6 +2001,10 @@
                 document.getElementById('favorites-toggle').classList.toggle('active', showFavoritesOnly);
                 applyFilters();
             });
+
+            // View toggle
+            document.getElementById('card-view-btn').addEventListener('click', () => switchView('card'));
+            document.getElementById('map-view-btn').addEventListener('click', () => switchView('map'));
 
             // Modal close
             document.getElementById('modal-close').addEventListener('click', closeModal);
