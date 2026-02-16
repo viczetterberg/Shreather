@@ -1423,7 +1423,7 @@
         let mapMetric = 'snow-tomorrow';
 
         // ==================== WEATHER API ====================
-        async function fetchWeather(lat, lon) {
+        async function fetchWeather(lat, lon, elevation) {
             const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
             const cached = weatherCache.get(cacheKey);
 
@@ -1432,7 +1432,9 @@
             }
 
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10`;
+                const elevMeters = elevation ? Math.round(elevation * 0.3048) : '';
+                const elevParam = elevMeters ? `&elevation=${elevMeters}` : '';
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10`;
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -1712,7 +1714,7 @@
 
                     // Fetch weather + NOHRSC snow depth async
                     Promise.all([
-                        fetchWeather(tour.lat, tour.lon),
+                        fetchWeather(tour.lat, tour.lon, tour.elevation),
                         fetchSnowDepthNOHRSC(tour.lat, tour.lon)
                     ]).then(([weather, nohrscData]) => {
                         const processed = processWeatherData(weather, nohrscData);
