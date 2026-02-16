@@ -504,6 +504,40 @@
             min-height: 50px;
         }
 
+        .chart-legend {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .legend-line {
+            display: inline-block;
+            width: 12px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        .legend-line.legend-thin {
+            height: 1px;
+            opacity: 0.6;
+        }
+
+        .legend-line.legend-dashed {
+            height: 1px;
+            opacity: 0.5;
+            background: repeating-linear-gradient(90deg, var(--accent-yellow) 0, var(--accent-yellow) 3px, transparent 3px, transparent 5px) !important;
+        }
+
         .forecast-row {
             display: flex;
             gap: 4px;
@@ -911,83 +945,25 @@
             background: var(--bg-card-hover);
         }
 
-        .hourly-expand-row {
+        .hourly-detail-row {
             display: none;
         }
 
-        .hourly-expand-row.show {
+        .hourly-detail-row.show {
             display: table-row;
         }
 
-        .hourly-expand-row td {
-            padding: 0 !important;
-            border-top: none !important;
-        }
-
-        .hourly-expand-content {
+        .hourly-detail-row td {
+            padding: 5px 10px !important;
+            font-size: 0.72rem !important;
             background: var(--bg-card);
-            border-radius: 6px;
-            margin: 4px 0 8px;
-            padding: 6px 0;
-            max-height: 220px;
-            overflow-y: auto;
+            border-bottom: 1px solid var(--border-subtle) !important;
         }
 
-        .hourly-expand-item {
-            display: grid;
-            grid-template-columns: 48px 24px 40px 40px 40px 36px;
-            gap: 4px;
-            align-items: center;
-            padding: 4px 10px;
-            font-size: 0.72rem;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .hourly-expand-item:last-child {
-            border-bottom: none;
-        }
-
-        .he-time {
-            color: var(--text-muted);
+        .hourly-detail-row td.he-time {
+            font-family: var(--font);
             font-weight: 500;
-        }
-
-        .he-icon {
             color: var(--text-muted);
-        }
-
-        .he-temp {
-            font-family: var(--mono);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .he-snow {
-            font-family: var(--mono);
-            color: var(--text-muted);
-            text-align: right;
-        }
-
-        .he-snow.has-snow {
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        .he-rain {
-            font-family: var(--mono);
-            color: var(--text-muted);
-            text-align: right;
-        }
-
-        .he-rain.has-rain {
-            color: var(--accent-pink);
-            font-weight: 600;
-        }
-
-        .he-wind {
-            font-family: var(--mono);
-            color: var(--accent-yellow);
-            text-align: right;
         }
 
         /* ─── Footer ─── */
@@ -1831,7 +1807,14 @@
                 }
             }
 
-            return `<div class="forecast-chart"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${svg}</svg></div>`;
+            let legend = '<div class="chart-legend">';
+            legend += '<span class="legend-item"><span class="legend-line" style="background:var(--accent-blue)"></span>Snow</span>';
+            if (hasRain) legend += '<span class="legend-item"><span class="legend-line" style="background:var(--accent-pink)"></span>Rain</span>';
+            legend += '<span class="legend-item"><span class="legend-line legend-thin" style="background:var(--accent-red)"></span>Temp</span>';
+            legend += '<span class="legend-item"><span class="legend-line legend-dashed" style="background:var(--accent-yellow)"></span>Wind</span>';
+            legend += '</div>';
+
+            return `<div class="forecast-chart"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${svg}</svg>${legend}</div>`;
         }
 
         function renderTourCard(tour) {
@@ -2104,7 +2087,7 @@
                         const dayHours = weather.allHourly.filter(h => h.time >= dayStart && h.time < dayEnd);
 
                         bodyHtml += `
-                            <tr class="day-row" data-day-index="${i}" onclick="this.classList.toggle('expanded');this.nextElementSibling.classList.toggle('show');" style="cursor:pointer;">
+                            <tr class="day-row" data-day-index="${i}" onclick="document.querySelectorAll('.hourly-tr-${i}').forEach(r=>r.classList.toggle('show'));this.classList.toggle('expanded');" style="cursor:pointer;">
                                 <td>${dayName} <span style="color:var(--text-muted);font-size:0.72rem;">${dateStr}</span> <span class="expand-arrow">&#9656;</span></td>
                                 <td style="color:var(--text-muted)">${getWeatherIcon(day.code, 16)}</td>
                                 <td class="snow-val">${day.snow > 0 ? `<span class="snow-bar" style="width:${barW}px"></span>${day.snow}"` : '—'}</td>
@@ -2112,30 +2095,23 @@
                                 <td class="temp-val">${day.tempMax}°/${day.tempMin}°</td>
                                 <td class="wind-val">${day.wind}</td>
                             </tr>
-                            <tr class="hourly-expand-row">
-                                <td colspan="6">
-                                    <div class="hourly-expand-content">
                         `;
 
                         if (dayHours.length > 0) {
                             dayHours.forEach(h => {
                                 const timeStr = h.time.toLocaleTimeString('en-US', { hour: 'numeric' });
                                 bodyHtml += `
-                                    <div class="hourly-expand-item">
-                                        <span class="he-time">${timeStr}</span>
-                                        <span class="he-icon">${getWeatherIcon(h.code, 14)}</span>
-                                        <span class="he-temp">${h.temp}°</span>
-                                        <span class="he-snow${h.snow > 0 ? ' has-snow' : ''}">${h.snow > 0 ? h.snow + '"' : '—'}</span>
-                                        <span class="he-rain${h.rain > 0 ? ' has-rain' : ''}">${h.rain > 0 ? h.rain + '"' : '—'}</span>
-                                        <span class="he-wind">${h.wind}</span>
-                                    </div>
+                                    <tr class="hourly-detail-row hourly-tr-${i}">
+                                        <td class="he-time">${timeStr}</td>
+                                        <td style="color:var(--text-muted)">${getWeatherIcon(h.code, 14)}</td>
+                                        <td class="snow-val">${h.snow > 0 ? h.snow + '"' : '—'}</td>
+                                        <td class="rain-val">${h.rain > 0 ? h.rain + '"' : '—'}</td>
+                                        <td class="temp-val">${h.temp}°</td>
+                                        <td class="wind-val">${h.wind}</td>
+                                    </tr>
                                 `;
                             });
-                        } else {
-                            bodyHtml += '<div style="padding:8px;color:var(--text-muted);font-size:0.75rem;">No hourly data available</div>';
                         }
-
-                        bodyHtml += '</div></td></tr>';
                     });
                     bodyHtml += '</tbody></table></div>';
                 }
