@@ -501,6 +501,7 @@
             display: block;
             width: 100%;
             height: auto;
+            min-height: 50px;
         }
 
         .forecast-row {
@@ -1759,34 +1760,78 @@
         function buildForecastSparkline(dailyForecast) {
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const n = dailyForecast.length;
-            const w = 280, h = 52, pad = 2;
-            const barW = Math.floor((w - pad * 2) / n) - 2;
-            const maxVal = Math.max(...dailyForecast.map(d => Math.max(d.snow, d.rain)), 0.5);
+            if (n === 0) return '';
 
-            let bars = '';
-            let labels = '';
+            const w = 280, h = 68, top = 12, bot = 2;
+            const chartH = h - top - bot;
+            const step = (w - 8) / (n - 1);
+
+            // Compute ranges for normalization
+            const maxPrecip = Math.max(...dailyForecast.map(d => Math.max(d.snow, d.rain)), 0.3);
+            const temps = dailyForecast.map(d => (d.tempMax + d.tempMin) / 2);
+            const minTemp = Math.min(...temps) - 2;
+            const maxTemp = Math.max(...temps) + 2;
+            const maxWind = Math.max(...dailyForecast.map(d => d.wind), 5);
+
+            function precipY(v) { return top + chartH - (v / maxPrecip) * chartH; }
+            function tempY(v) { return top + chartH - ((v - minTemp) / (maxTemp - minTemp)) * chartH; }
+            function windY(v) { return top + chartH - (v / maxWind) * chartH * 0.7; }
+            function px(i) { return 4 + i * step; }
+
+            // Build line paths
+            let snowPts = '', rainPts = '', tempPts = '', windPts = '';
             for (let i = 0; i < n; i++) {
-                const x = pad + i * ((w - pad * 2) / n) + 1;
-                const snowH = Math.max((dailyForecast[i].snow / maxVal) * (h - 18), dailyForecast[i].snow > 0 ? 3 : 0);
-                const rainH = Math.max((dailyForecast[i].rain / maxVal) * (h - 18), dailyForecast[i].rain > 0 ? 3 : 0);
-                const snowY = h - 2 - snowH;
-                const rainY = h - 2 - rainH;
-
-                // Snow bar (blue)
-                if (snowH > 0) {
-                    bars += `<rect x="${x}" y="${snowY}" width="${barW}" height="${snowH}" rx="1.5" fill="var(--accent-blue)" opacity="0.8"/>`;
-                    bars += `<text x="${x + barW/2}" y="${snowY - 2}" text-anchor="middle" font-size="7" font-family="var(--mono)" fill="var(--accent-blue)">${dailyForecast[i].snow}"</text>`;
-                }
-                // Rain bar (pink, overlaid slightly offset)
-                if (rainH > 0) {
-                    bars += `<rect x="${x + (snowH > 0 ? barW * 0.3 : 0)}" y="${rainY}" width="${barW * 0.7}" height="${rainH}" rx="1.5" fill="var(--accent-pink)" opacity="0.6"/>`;
-                }
-                // Day label
-                const dayName = i === 0 ? 'Today' : days[dailyForecast[i].date.getDay()];
-                labels += `<text x="${x + barW/2}" y="8" text-anchor="middle" font-size="6.5" font-family="var(--font)" font-weight="500" fill="var(--text-muted)">${dayName}</text>`;
+                const x = px(i);
+                snowPts += `${i === 0 ? 'M' : 'L'}${x},${precipY(dailyForecast[i].snow)} `;
+                rainPts += `${i === 0 ? 'M' : 'L'}${x},${precipY(dailyForecast[i].rain)} `;
+                tempPts += `${i === 0 ? 'M' : 'L'}${x},${tempY(temps[i])} `;
+                windPts += `${i === 0 ? 'M' : 'L'}${x},${windY(dailyForecast[i].wind)} `;
             }
 
-            return `<div class="forecast-chart"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${labels}${bars}</svg></div>`;
+            // Snow filled area
+            const snowFill = `${snowPts}L${px(n-1)},${precipY(0)} L${px(0)},${precipY(0)} Z`;
+
+            let svg = '';
+
+            // Day labels
+            for (let i = 0; i < n; i++) {
+                const dayName = i === 0 ? 'Tdy' : days[dailyForecast[i].date.getDay()];
+                svg += `<text x="${px(i)}" y="8" text-anchor="middle" font-size="6" font-family="var(--font)" font-weight="500" fill="var(--text-muted)">${dayName}</text>`;
+            }
+
+            // Freezing line (32°F)
+            if (maxTemp > 32 && minTemp < 32) {
+                const fY = tempY(32);
+                svg += `<line x1="4" y1="${fY}" x2="${w-4}" y2="${fY}" stroke="var(--text-muted)" stroke-width="0.3" stroke-dasharray="2,3" opacity="0.4"/>`;
+            }
+
+            // Snow fill + line
+            svg += `<path d="${snowFill}" fill="var(--accent-blue)" opacity="0.12"/>`;
+            svg += `<path d="${snowPts}" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+            // Rain line
+            const hasRain = dailyForecast.some(d => d.rain > 0);
+            if (hasRain) {
+                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-pink)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+            }
+
+            // Temp line (thin, subtle)
+            svg += `<path d="${tempPts}" fill="none" stroke="var(--accent-red)" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>`;
+
+            // Wind line (dotted, very subtle)
+            svg += `<path d="${windPts}" fill="none" stroke="var(--accent-yellow)" stroke-width="0.6" stroke-dasharray="2,2" stroke-linecap="round" opacity="0.35"/>`;
+
+            // Snow amount dots + labels for days with snow
+            for (let i = 0; i < n; i++) {
+                const x = px(i);
+                if (dailyForecast[i].snow > 0) {
+                    const y = precipY(dailyForecast[i].snow);
+                    svg += `<circle cx="${x}" cy="${y}" r="2" fill="var(--accent-blue)"/>`;
+                    svg += `<text x="${x}" y="${y - 4}" text-anchor="middle" font-size="6.5" font-family="var(--mono)" font-weight="600" fill="var(--accent-blue)">${dailyForecast[i].snow}"</text>`;
+                }
+            }
+
+            return `<div class="forecast-chart"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${svg}</svg></div>`;
         }
 
         function renderTourCard(tour) {
