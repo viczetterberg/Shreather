@@ -479,6 +479,33 @@
             font-weight: 500;
         }
 
+        .legend-indicator {
+            display: inline-block;
+            width: 14px;
+            height: 0;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        .legend-indicator.snow-line {
+            border-top: 2px solid var(--accent-blue);
+        }
+
+        .legend-indicator.rain-line {
+            border-top: 2px solid var(--accent-pink);
+            margin-left: 2px;
+        }
+
+        .legend-indicator.temp-line {
+            border-top: 1px solid var(--accent-red);
+            opacity: 0.6;
+        }
+
+        .legend-indicator.wind-line {
+            border-top: 1px dashed var(--accent-yellow);
+            opacity: 0.6;
+        }
+
         .weather-value {
             font-size: 1.15rem;
             font-weight: 700;
@@ -1706,7 +1733,7 @@
             if (n === 0) return '';
 
             const marginL = 22, marginR = 22;
-            const w = 320, h = 78, topPad = 18, bot = 2;
+            const w = 320, h = 68, topPad = 10, bot = 2;
             const chartL = marginL, chartR = w - marginR;
             const chartW = chartR - chartL;
             const chartH = h - topPad - bot;
@@ -1738,27 +1765,6 @@
             const hasRain = dailyForecast.some(d => d.rain > 0);
 
             let svg = '';
-
-            // ── Inline legend above chart ──
-            let lx = chartL;
-            const ly = 7;
-            // Snow legend
-            svg += `<line x1="${lx}" y1="${ly}" x2="${lx+10}" y2="${ly}" stroke="var(--accent-blue)" stroke-width="1.5"/>`;
-            svg += `<text x="${lx+13}" y="${ly+2.5}" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--accent-blue)">Snow</text>`;
-            lx += 32;
-            // Rain legend
-            if (hasRain) {
-                svg += `<line x1="${lx}" y1="${ly}" x2="${lx+10}" y2="${ly}" stroke="var(--accent-pink)" stroke-width="1.2"/>`;
-                svg += `<text x="${lx+13}" y="${ly+2.5}" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--accent-pink)">Rain</text>`;
-                lx += 30;
-            }
-            // Temp legend
-            svg += `<line x1="${lx}" y1="${ly}" x2="${lx+10}" y2="${ly}" stroke="var(--accent-red)" stroke-width="0.8" opacity="0.6"/>`;
-            svg += `<text x="${lx+13}" y="${ly+2.5}" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--accent-red)" opacity="0.6">Temp</text>`;
-            lx += 32;
-            // Wind legend
-            svg += `<line x1="${lx}" y1="${ly}" x2="${lx+10}" y2="${ly}" stroke="var(--accent-yellow)" stroke-width="0.6" stroke-dasharray="2,2" opacity="0.5"/>`;
-            svg += `<text x="${lx+13}" y="${ly+2.5}" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--accent-yellow)" opacity="0.5">Wind</text>`;
 
             // ── Day labels ──
             for (let i = 0; i < n; i++) {
@@ -1838,6 +1844,7 @@
                 const sourceLabel = weather.current.snowDepthSource === 'nohrsc'
                     ? '<div class="weather-label" style="margin-top:2px;font-size:0.55rem;opacity:0.7;">NOAA obs.</div>'
                     : '';
+                const hasRainForecast = weather.dailyForecast.some(d => d.rain > 0);
                 weatherHtml = `
                     <div class="weather-grid">
                         <div class="weather-item">
@@ -1846,15 +1853,15 @@
                             ${sourceLabel}
                         </div>
                         <div class="weather-item">
-                            <div class="weather-label">24h Snow</div>
+                            <div class="weather-label">24h Snow <span class="legend-indicator snow-line"></span>${hasRainForecast ? '<span class="legend-indicator rain-line"></span>' : ''}</div>
                             <div class="weather-value snow">${weather.snow24h}"</div>
                         </div>
                         <div class="weather-item">
-                            <div class="weather-label">Temp</div>
+                            <div class="weather-label">Temp <span class="legend-indicator temp-line"></span></div>
                             <div class="weather-value temp">${weather.current.temp}°F</div>
                         </div>
                         <div class="weather-item">
-                            <div class="weather-label">Wind</div>
+                            <div class="weather-label">Wind <span class="legend-indicator wind-line"></span></div>
                             <div class="weather-value wind">${weather.current.wind} mph</div>
                         </div>
                     </div>
