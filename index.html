@@ -61,6 +61,7 @@
             --accent-purple: #9080c8;
             --accent-pink: #c06068;
             --accent-red: #c06068;
+            --accent-rain: #5ebda6;
             --accent-yellow: #c4983e;
             --accent-green: #5a9a6e;
             --accent-slate: #4e5e72;
@@ -88,6 +89,7 @@
             --accent-purple: #7060a8;
             --accent-pink: #a84850;
             --accent-red: #a84850;
+            --accent-rain: #2e9e80;
             --accent-yellow: #a07828;
             --accent-green: #3e7a50;
             --accent-slate: #5b6a7f;
@@ -495,7 +497,7 @@
 
         .pl-rain {
             font-size: 0.35rem;
-            color: var(--accent-pink);
+            color: var(--accent-rain);
             line-height: 1;
         }
 
@@ -503,7 +505,7 @@
             display: inline-block;
             width: 14px;
             height: 2px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-pink));
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-rain));
             border-radius: 1px;
         }
 
@@ -743,12 +745,50 @@
             margin-top: 6px;
         }
 
+        .hourly-chart {
+            position: relative;
+            cursor: crosshair;
+        }
+
         .hourly-chart svg {
             display: block;
             width: 100%;
             height: auto;
             min-height: 100px;
         }
+
+        .hc-tooltip {
+            display: none;
+            position: absolute;
+            top: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+            font-family: var(--mono);
+            line-height: 1.5;
+            pointer-events: none;
+            z-index: 10;
+            white-space: nowrap;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hc-tooltip.visible {
+            display: block;
+        }
+
+        .hc-tooltip .tt-time {
+            font-family: var(--font);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .hc-tooltip .tt-snow { color: var(--accent-blue); }
+        .hc-tooltip .tt-rain { color: var(--accent-rain); }
+        .hc-tooltip .tt-temp { color: var(--accent-red); }
+        .hc-tooltip .tt-wind { color: var(--accent-yellow); }
 
         .hourly-chart-legend {
             display: flex;
@@ -856,7 +896,7 @@
         }
 
         .daily-value.snow { color: var(--accent-blue); font-weight: 600; }
-        .daily-value.rain { color: var(--accent-pink); }
+        .daily-value.rain { color: var(--accent-rain); }
         .daily-value.temp { color: var(--text-primary); }
         .daily-value.wind { color: var(--accent-yellow); }
 
@@ -956,7 +996,7 @@
         }
 
         .forecast-table .snow-val { color: var(--accent-blue); font-weight: 600; }
-        .forecast-table .rain-val { color: var(--accent-pink); }
+        .forecast-table .rain-val { color: var(--accent-rain); }
         .forecast-table .temp-val { color: var(--text-secondary); }
         .forecast-table .wind-val { color: var(--accent-yellow); }
 
@@ -1848,7 +1888,7 @@
 
             // ── Rain line ──
             if (hasRain) {
-                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-pink)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-rain)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
             }
 
             // ── Temp line ──
@@ -1941,7 +1981,7 @@
 
             // Rain line
             if (hasRain) {
-                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-pink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-rain)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
             }
 
             // Temp line
@@ -1965,7 +2005,21 @@
                 svg += `<circle cx="${x}" cy="${y}" r="1.5" fill="var(--accent-red)" opacity="0.5"/>`;
             }
 
-            return `<div class="hourly-chart"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${svg}</svg></div>`;
+            // Hover cursor line (hidden by default)
+            svg += `<line class="hc-cursor" x1="0" y1="${topPad}" x2="0" y2="${h - bot}" stroke="var(--text-muted)" stroke-width="0.5" opacity="0" stroke-dasharray="2,2"/>`;
+
+            // Serialize data points for hover lookup
+            const hoverData = hourlyForecast.map((hr, i) => ({
+                x: px(i),
+                time: hr.time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                temp: hr.temp,
+                snow: hr.snow,
+                rain: hr.rain,
+                wind: hr.wind
+            }));
+            const dataAttr = JSON.stringify(hoverData).replace(/"/g, '&quot;');
+
+            return `<div class="hourly-chart" data-hover='${dataAttr}' data-vw="${w}" data-cl="${chartL}" data-cr="${chartR}"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${svg}</svg><div class="hc-tooltip"></div></div>`;
         }
 
         function renderTourCard(tour) {
@@ -2157,8 +2211,8 @@
                                 <div class="condition-label">Wind (mph)</div>
                             </div>
                             <div class="condition-card">
-                                <div class="condition-icon" style="color:var(--accent-pink)">${getWeatherIcon(61, 22)}</div>
-                                <div class="condition-value" style="color: var(--accent-pink);">${weather.rain24h}"</div>
+                                <div class="condition-icon" style="color:var(--accent-rain)">${getWeatherIcon(61, 22)}</div>
+                                <div class="condition-value" style="color: var(--accent-rain);">${weather.rain24h}"</div>
                                 <div class="condition-label">24h Rain</div>
                             </div>
                             <div class="condition-card">
@@ -2186,7 +2240,7 @@
                         <div class="modal-section">
                             <h3 class="modal-section-title">Hourly Forecast (Next 24h)</h3>
                             <div class="hourly-chart-legend">
-                                <span class="precip-legend"><span class="pl-snow">&#10052;</span><span class="precip-gradient-line"></span><span class="pl-rain">&#9679;</span></span>
+                                <span class="hcl-item"><span class="pl-snow">&#10052;</span> Snow <span class="precip-gradient-line"></span> Rain <span class="pl-rain">&#9679;</span></span>
                                 <span class="hcl-item"><span class="legend-indicator temp-line"></span> Temp</span>
                                 <span class="hcl-item"><span class="legend-indicator wind-line"></span> Wind</span>
                             </div>
@@ -2331,6 +2385,57 @@
                     mapEl._miniMap = miniMap;
                 }
             }, 100);
+
+            // Hourly chart hover
+            const hcEl = document.querySelector('.hourly-chart[data-hover]');
+            if (hcEl) {
+                const points = JSON.parse(hcEl.dataset.hover);
+                const vw = parseFloat(hcEl.dataset.vw);
+                const cl = parseFloat(hcEl.dataset.cl);
+                const cr = parseFloat(hcEl.dataset.cr);
+                const tooltip = hcEl.querySelector('.hc-tooltip');
+                const cursor = hcEl.querySelector('.hc-cursor');
+
+                hcEl.addEventListener('mousemove', (e) => {
+                    const rect = hcEl.getBoundingClientRect();
+                    const relX = (e.clientX - rect.left) / rect.width * vw;
+
+                    // Find nearest point
+                    let closest = 0, minDist = Infinity;
+                    for (let i = 0; i < points.length; i++) {
+                        const d = Math.abs(points[i].x - relX);
+                        if (d < minDist) { minDist = d; closest = i; }
+                    }
+                    const pt = points[closest];
+
+                    // Update cursor line
+                    cursor.setAttribute('x1', pt.x);
+                    cursor.setAttribute('x2', pt.x);
+                    cursor.setAttribute('opacity', '0.5');
+
+                    // Update tooltip
+                    let html = `<div class="tt-time">${pt.time}</div>`;
+                    html += `<div class="tt-temp">Temp: ${pt.temp}°F</div>`;
+                    if (pt.snow > 0) html += `<div class="tt-snow">Snow: ${pt.snow}"</div>`;
+                    if (pt.rain > 0) html += `<div class="tt-rain">Rain: ${pt.rain}"</div>`;
+                    html += `<div class="tt-wind">Wind: ${pt.wind} mph</div>`;
+                    tooltip.innerHTML = html;
+                    tooltip.classList.add('visible');
+
+                    // Position tooltip
+                    const pxPos = (pt.x / vw) * rect.width;
+                    const tooltipW = tooltip.offsetWidth;
+                    let left = pxPos - tooltipW / 2;
+                    if (left < 4) left = 4;
+                    if (left + tooltipW > rect.width - 4) left = rect.width - tooltipW - 4;
+                    tooltip.style.left = left + 'px';
+                });
+
+                hcEl.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('visible');
+                    cursor.setAttribute('opacity', '0');
+                });
+            }
         }
 
         function closeModal() {
