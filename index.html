@@ -1423,6 +1423,59 @@
         let mapMetric = 'snow-tomorrow';
 
         // ==================== WEATHER API ====================
+        const MODEL_SUFFIXES = ['_gfs_seamless', '_ecmwf_ifs025', '_gem_seamless'];
+        const SNOW_FIELDS = ['snowfall', 'snow_depth', 'snowfall_sum'];
+
+        function mergeMultiModel(raw) {
+            const merged = { hourly: { time: raw.hourly.time }, daily: { time: raw.daily.time } };
+
+            // Collect all base field names from the hourly/daily keys
+            function getBaseFields(section) {
+                const bases = new Set();
+                for (const key of Object.keys(raw[section])) {
+                    if (key === 'time') continue;
+                    for (const suffix of MODEL_SUFFIXES) {
+                        if (key.endsWith(suffix)) {
+                            bases.add(key.slice(0, -suffix.length));
+                            break;
+                        }
+                    }
+                }
+                return bases;
+            }
+
+            function mergeSection(section) {
+                const bases = getBaseFields(section);
+                for (const base of bases) {
+                    const isSnow = SNOW_FIELDS.includes(base);
+                    const len = raw[section].time.length;
+                    const result = new Array(len);
+
+                    for (let i = 0; i < len; i++) {
+                        const vals = [];
+                        for (const suffix of MODEL_SUFFIXES) {
+                            const arr = raw[section][base + suffix];
+                            if (arr && arr[i] != null) vals.push(arr[i]);
+                        }
+                        if (vals.length === 0) {
+                            result[i] = 0;
+                        } else if (isSnow) {
+                            result[i] = Math.max(...vals);
+                        } else {
+                            // Use GFS as primary, fall back to first available
+                            const gfs = raw[section][base + '_gfs_seamless'];
+                            result[i] = (gfs && gfs[i] != null) ? gfs[i] : vals[0];
+                        }
+                    }
+                    merged[section][base] = result;
+                }
+            }
+
+            mergeSection('hourly');
+            mergeSection('daily');
+            return merged;
+        }
+
         async function fetchWeather(lat, lon, elevation) {
             const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
             const cached = weatherCache.get(cacheKey);
@@ -1434,9 +1487,11 @@
             try {
                 const elevMeters = elevation ? Math.round(elevation * 0.3048) : '';
                 const elevParam = elevMeters ? `&elevation=${elevMeters}` : '';
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10`;
+                const models = '&models=gfs_seamless,ecmwf_ifs025,gem_seamless';
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10${models}`;
                 const response = await fetch(url);
-                const data = await response.json();
+                const raw = await response.json();
+                const data = mergeMultiModel(raw);
 
                 weatherCache.set(cacheKey, { data, timestamp: Date.now() });
                 return data;
