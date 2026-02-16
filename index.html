@@ -479,29 +479,50 @@
             font-weight: 500;
         }
 
-        .legend-indicator {
+        .precip-legend {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin-left: 3px;
+            gap: 1px;
+        }
+
+        .pl-snow {
+            font-size: 0.5rem;
+            color: var(--accent-blue);
+            line-height: 1;
+        }
+
+        .pl-rain {
+            font-size: 0.35rem;
+            color: var(--accent-pink);
+            line-height: 1;
+        }
+
+        .precip-gradient-line {
             display: inline-block;
             width: 14px;
-            height: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-pink));
+            border-radius: 1px;
+        }
+
+        .legend-indicator {
+            display: inline-block;
             vertical-align: middle;
             margin-left: 4px;
         }
 
-        .legend-indicator.snow-line {
-            border-top: 2px solid var(--accent-blue);
-        }
-
-        .legend-indicator.rain-line {
-            border-top: 2px solid var(--accent-pink);
-            margin-left: 2px;
-        }
-
         .legend-indicator.temp-line {
+            width: 14px;
+            height: 0;
             border-top: 1px solid var(--accent-red);
             opacity: 0.6;
         }
 
         .legend-indicator.wind-line {
+            width: 14px;
+            height: 0;
             border-top: 1px dashed var(--accent-yellow);
             opacity: 0.6;
         }
@@ -1844,7 +1865,6 @@
                 const sourceLabel = weather.current.snowDepthSource === 'nohrsc'
                     ? '<div class="weather-label" style="margin-top:2px;font-size:0.55rem;opacity:0.7;">NOAA obs.</div>'
                     : '';
-                const hasRainForecast = weather.dailyForecast.some(d => d.rain > 0);
                 weatherHtml = `
                     <div class="weather-grid">
                         <div class="weather-item">
@@ -1853,7 +1873,7 @@
                             ${sourceLabel}
                         </div>
                         <div class="weather-item">
-                            <div class="weather-label">24h Snow <span class="legend-indicator snow-line"></span>${hasRainForecast ? '<span class="legend-indicator rain-line"></span>' : ''}</div>
+                            <div class="weather-label">24h Precip <span class="precip-legend"><span class="pl-snow">&#10052;</span><span class="precip-gradient-line"></span><span class="pl-rain">&#9679;</span></span></div>
                             <div class="weather-value snow">${weather.snow24h}"</div>
                         </div>
                         <div class="weather-item">
