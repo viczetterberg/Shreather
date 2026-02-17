@@ -1428,6 +1428,11 @@
                 <button class="view-toggle-btn active" id="card-view-btn">Cards</button>
                 <button class="view-toggle-btn" id="map-view-btn">Map</button>
             </div>
+            <div class="view-toggle" id="optimism-toggle">
+                <button class="view-toggle-btn optimism-btn" data-level="low" title="Lowest model prediction">&#9924; Low</button>
+                <button class="view-toggle-btn optimism-btn" data-level="medium" title="Average of all models">&#9729; Med</button>
+                <button class="view-toggle-btn optimism-btn active" data-level="high" title="Highest model prediction">&#10052; High</button>
+            </div>
             <select class="sort-select" id="map-metric-select" style="display:none;">
                 <option value="snow-tomorrow">Snow Tomorrow</option>
                 <option value="wind">Wind (mph)</option>
@@ -1678,6 +1683,7 @@
 
         // ==================== STATE ====================
         const weatherCache = new Map();
+        const rawWeatherCache = new Map();
         const snowDepthCache = new Map();
         const tourWeatherData = new Map();
         const CACHE_DURATION = 15 * 60 * 1000;
@@ -1688,6 +1694,7 @@
         let mapMarkers = [];
         let currentView = 'card';
         let mapMetric = 'snow-tomorrow';
+        let optimism = localStorage.getItem('backcountry-optimism') || 'high';
 
         // ==================== WEATHER API ====================
 
@@ -1712,10 +1719,10 @@
         const MODEL_SUFFIXES = ['_gfs_seamless', '_ecmwf_ifs025', '_gem_seamless'];
         const SNOW_FIELDS = ['snowfall', 'snow_depth', 'snowfall_sum', 'precipitation', 'precipitation_sum'];
 
-        function mergeMultiModel(raw) {
+        function mergeMultiModel(raw, level) {
+            level = level || optimism;
             const merged = { hourly: { time: raw.hourly.time }, daily: { time: raw.daily.time } };
 
-            // Collect all base field names from the hourly/daily keys
             function getBaseFields(section) {
                 const bases = new Set();
                 for (const key of Object.keys(raw[section])) {
@@ -1746,9 +1753,10 @@
                         if (vals.length === 0) {
                             result[i] = 0;
                         } else if (isSnow) {
-                            result[i] = Math.max(...vals);
+                            if (level === 'high') result[i] = Math.max(...vals);
+                            else if (level === 'low') result[i] = Math.min(...vals);
+                            else result[i] = vals.reduce((a, b) => a + b, 0) / vals.length;
                         } else {
-                            // Use GFS as primary, fall back to first available
                             const gfs = raw[section][base + '_gfs_seamless'];
                             result[i] = (gfs && gfs[i] != null) ? gfs[i] : vals[0];
                         }
@@ -1777,6 +1785,7 @@
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10${models}`;
                 const response = await fetch(url);
                 const raw = await response.json();
+                rawWeatherCache.set(cacheKey, { raw, timestamp: Date.now() });
                 const data = mergeMultiModel(raw);
 
                 weatherCache.set(cacheKey, { data, timestamp: Date.now() });
@@ -2689,6 +2698,33 @@
             document.getElementById('theme-icon').innerHTML = theme === 'dark' ? '&#9788;' : '&#9790;';
         }
 
+        // ==================== REPROCESS ON OPTIMISM CHANGE ====================
+        function reprocessAllWeather() {
+            // Re-merge raw data with new optimism level, reprocess, and re-render cards
+            weatherCache.clear();
+            for (const tour of tours) {
+                const cacheKey = `${tour.lat.toFixed(2)},${tour.lon.toFixed(2)}`;
+                const rawEntry = rawWeatherCache.get(cacheKey);
+                if (!rawEntry) continue;
+                const data = mergeMultiModel(rawEntry.raw);
+                weatherCache.set(cacheKey, { data, timestamp: rawEntry.timestamp });
+                const nohrscKey = `nohrsc_${tour.lat.toFixed(2)},${tour.lon.toFixed(2)}`;
+                const nohrscEntry = snowDepthCache.get(nohrscKey);
+                const processed = processWeatherData(data, nohrscEntry ? nohrscEntry.data : null);
+                if (processed) {
+                    tourWeatherData.set(tour.id, processed);
+                    // Re-render card in place
+                    const oldCard = document.querySelector(`.tour-card[data-id="${tour.id}"]`);
+                    if (oldCard) {
+                        const newCard = renderTourCard(tour);
+                        oldCard.replaceWith(newCard);
+                    }
+                }
+            }
+            updateStats();
+            if (currentView === 'map') updateMapMarkers();
+        }
+
         // ==================== STATS ====================
         function updateStats() {
             let withSnow = 0;
@@ -2889,6 +2925,22 @@
             // View toggle
             document.getElementById('card-view-btn').addEventListener('click', () => switchView('card'));
             document.getElementById('map-view-btn').addEventListener('click', () => switchView('map'));
+
+            // Optimism toggle
+            document.querySelectorAll('.optimism-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.optimism-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    optimism = btn.dataset.level;
+                    localStorage.setItem('backcountry-optimism', optimism);
+                    reprocessAllWeather();
+                });
+            });
+
+            // Restore saved optimism level
+            document.querySelectorAll('.optimism-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.level === optimism);
+            });
 
             // Map metric selector
             document.getElementById('map-metric-select').addEventListener('change', (e) => {
