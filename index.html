@@ -1690,8 +1690,27 @@
         let mapMetric = 'snow-tomorrow';
 
         // ==================== WEATHER API ====================
+
+        // Dynamic snow-to-liquid ratio based on temperature (Kuchera-style)
+        // Returns inches of snow per mm of liquid water equivalent
+        function slrSnowInches(precipMm, rainMm, tempC) {
+            const snowLiquidMm = Math.max(0, (precipMm || 0) - (rainMm || 0));
+            if (snowLiquidMm <= 0) return 0;
+            const tempF = tempC * 9/5 + 32;
+            let slr;
+            if (tempF >= 34) slr = 8;
+            else if (tempF >= 28) slr = 10;
+            else if (tempF >= 20) slr = 12 + (28 - tempF) * 0.375;  // 12→15
+            else if (tempF >= 15) slr = 15 + (20 - tempF) * 1.0;    // 15→20
+            else if (tempF >= 10) slr = 20 + (15 - tempF) * 2.0;    // 20→30
+            else if (tempF >= 0)  slr = 30 + (10 - tempF) * 1.0;    // 30→40
+            else slr = 40;
+            // mm of liquid × SLR / 25.4 = inches of snow
+            return snowLiquidMm * slr / 25.4;
+        }
+
         const MODEL_SUFFIXES = ['_gfs_seamless', '_ecmwf_ifs025', '_gem_seamless'];
-        const SNOW_FIELDS = ['snowfall', 'snow_depth', 'snowfall_sum'];
+        const SNOW_FIELDS = ['snowfall', 'snow_depth', 'snowfall_sum', 'precipitation', 'precipitation_sum'];
 
         function mergeMultiModel(raw) {
             const merged = { hourly: { time: raw.hourly.time }, daily: { time: raw.daily.time } };
@@ -1828,17 +1847,17 @@
                 weatherCode: hourly.weathercode[currentIndex]
             };
 
-            // 24h totals
+            // 24h totals using dynamic SLR
             let snow24h = 0, rain24h = 0;
-            for (let i = currentIndex; i < Math.min(currentIndex + 24, hourly.snowfall.length); i++) {
-                snow24h += hourly.snowfall[i] || 0;
-                rain24h += hourly.rain[i] || 0;
+            for (let i = currentIndex; i < Math.min(currentIndex + 24, hourly.precipitation.length); i++) {
+                snow24h += slrSnowInches(hourly.precipitation[i], hourly.rain[i], hourly.temperature_2m[i]);
+                rain24h += (hourly.rain[i] || 0);
             }
 
-            // 7-day totals
+            // 10-day totals using hourly SLR for accuracy
             let snow10d = 0;
-            if (daily && daily.snowfall_sum) {
-                daily.snowfall_sum.forEach(s => snow10d += s || 0);
+            for (let i = 0; i < hourly.precipitation.length; i++) {
+                snow10d += slrSnowInches(hourly.precipitation[i], hourly.rain[i], hourly.temperature_2m[i]);
             }
 
             // Hourly forecast (next 24 hours for summary)
@@ -1847,7 +1866,7 @@
                 hourlyForecast.push({
                     time: new Date(hourly.time[i]),
                     temp: Math.round(hourly.temperature_2m[i] * 9/5 + 32),
-                    snow: Math.round((hourly.snowfall[i] || 0) / 2.54 * 10) / 10,
+                    snow: Math.round(slrSnowInches(hourly.precipitation[i], hourly.rain[i], hourly.temperature_2m[i]) * 10) / 10,
                     rain: Math.round((hourly.rain[i] || 0) / 25.4 * 10) / 10,
                     wind: Math.round(hourly.windspeed_10m[i] * 0.621),
                     code: hourly.weathercode[i]
@@ -1860,22 +1879,28 @@
                 allHourly.push({
                     time: new Date(hourly.time[i]),
                     temp: Math.round(hourly.temperature_2m[i] * 9/5 + 32),
-                    snow: Math.round((hourly.snowfall[i] || 0) / 2.54 * 10) / 10,
+                    snow: Math.round(slrSnowInches(hourly.precipitation[i], hourly.rain[i], hourly.temperature_2m[i]) * 10) / 10,
                     rain: Math.round((hourly.rain[i] || 0) / 25.4 * 10) / 10,
                     wind: Math.round(hourly.windspeed_10m[i] * 0.621),
                     code: hourly.weathercode[i]
                 });
             }
 
-            // Daily forecast
+            // Daily forecast — compute snow from hourly SLR for each day
             const dailyForecast = [];
             if (daily && daily.time) {
                 for (let i = 0; i < daily.time.length; i++) {
+                    // Sum hourly SLR snow for this day (hours i*24 to (i+1)*24)
+                    let daySnow = 0;
+                    const hStart = i * 24, hEnd = Math.min((i + 1) * 24, hourly.precipitation.length);
+                    for (let h = hStart; h < hEnd; h++) {
+                        daySnow += slrSnowInches(hourly.precipitation[h], hourly.rain[h], hourly.temperature_2m[h]);
+                    }
                     dailyForecast.push({
                         date: new Date(daily.time[i] + 'T12:00:00'),
                         tempMax: Math.round(daily.temperature_2m_max[i] * 9/5 + 32),
                         tempMin: Math.round(daily.temperature_2m_min[i] * 9/5 + 32),
-                        snow: Math.round((daily.snowfall_sum[i] || 0) / 2.54 * 10) / 10,
+                        snow: Math.round(daySnow * 10) / 10,
                         rain: Math.round((daily.rain_sum[i] || 0) / 25.4 * 10) / 10,
                         wind: Math.round(daily.windspeed_10m_max[i] * 0.621),
                         code: daily.weathercode[i]
@@ -1885,9 +1910,9 @@
 
             return {
                 current,
-                snow24h: Math.round(snow24h / 2.54 * 10) / 10,
+                snow24h: Math.round(snow24h * 10) / 10,
                 rain24h: Math.round(rain24h / 25.4 * 10) / 10,
-                snow10d: Math.round(snow10d / 2.54 * 10) / 10,
+                snow10d: Math.round(snow10d * 10) / 10,
                 hourlyForecast,
                 dailyForecast,
                 allHourly
