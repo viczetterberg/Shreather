@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shreather-v21';
+const CACHE_NAME = 'shreather-v22';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
