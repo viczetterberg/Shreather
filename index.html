@@ -1428,11 +1428,13 @@
                 <button class="view-toggle-btn active" id="card-view-btn">Cards</button>
                 <button class="view-toggle-btn" id="map-view-btn">Map</button>
             </div>
-            <span style="font-size:0.75rem;color:var(--text-muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Optimism</span>
-            <div class="view-toggle" id="optimism-toggle">
-                <button class="view-toggle-btn optimism-btn" data-level="low" title="Lowest model prediction">&#128542;</button>
-                <button class="view-toggle-btn optimism-btn" data-level="medium" title="Average of all models">&#128528;</button>
-                <button class="view-toggle-btn optimism-btn active" data-level="high" title="Highest model prediction">&#128513;</button>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <span style="font-size:0.65rem;color:var(--text-muted);font-weight:500;letter-spacing:0.05em;text-transform:uppercase;">Optimism</span>
+                <div class="view-toggle" id="optimism-toggle">
+                    <button class="view-toggle-btn optimism-btn" data-level="low" title="Lowest model prediction">:(</button>
+                    <button class="view-toggle-btn optimism-btn" data-level="medium" title="Average of all models">:|</button>
+                    <button class="view-toggle-btn optimism-btn active" data-level="high" title="Highest model prediction">:)</button>
+                </div>
             </div>
             <select class="sort-select" id="map-metric-select" style="display:none;">
                 <option value="snow-tomorrow">Snow Tomorrow</option>
