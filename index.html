@@ -99,7 +99,7 @@
         }
 
         [data-theme="light"] header {
-            background: linear-gradient(to bottom, rgba(244,243,240,0.6), rgba(244,243,240,0.9)), url('https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/thumbnails/image/Tuckerman-Ravine-in-Winter-White-Mountains-NH.jpg') center/cover no-repeat;
+            background: linear-gradient(to bottom, rgba(20,25,35,0.45), rgba(20,25,35,0.75)), url('https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/thumbnails/image/Tuckerman-Ravine-in-Winter-White-Mountains-NH.jpg') center/cover no-repeat;
         }
 
         .weather-value, .stat-value, .condition-value, .forecast-snow,
@@ -178,6 +178,11 @@
             margin-bottom: 6px;
         }
 
+        header h1 {
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4);
+        }
+
         .subtitle {
             color: var(--text-secondary);
             font-size: 0.92rem;
@@ -185,6 +190,11 @@
             max-width: 520px;
             margin: 0 auto;
             line-height: 1.5;
+        }
+
+        header .subtitle {
+            color: rgba(255,255,255,0.88);
+            text-shadow: 0 1px 8px rgba(0,0,0,0.5);
         }
 
         .stats-bar {
@@ -217,6 +227,19 @@
             margin-top: 20px;
             font-size: 0.78rem;
             color: var(--text-muted);
+        }
+
+        header .stat-value {
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+        }
+
+        header .stat-label {
+            color: rgba(255,255,255,0.65);
+        }
+
+        header .last-updated {
+            color: rgba(255,255,255,0.5);
         }
 
         /* ─── Controls ─── */
@@ -418,6 +441,11 @@
         .tour-badge.indy {
             background: rgba(90, 154, 110, 0.12);
             color: var(--accent-green);
+        }
+
+        .tour-badge.co-book {
+            background: rgba(196, 120, 62, 0.15);
+            color: #d4845a;
         }
 
         .tour-badge.difficulty-easy {
@@ -1347,7 +1375,7 @@
                 </button>
             </div>
             <h1>Shreather</h1>
-            <p class="subtitle">Ski forecast for backcountry tours, glades, and resorts across the Northeast</p>
+            <p class="subtitle">Ski forecast for backcountry tours, glades, and resorts</p>
             <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-value" id="total-tours">0</div>
@@ -1385,12 +1413,14 @@
             <button class="filter-btn" data-filter="ikon">Ikon</button>
             <button class="filter-btn" data-filter="epic">Epic</button>
             <button class="filter-btn" data-filter="indy">Indy</button>
+            <button class="filter-btn" data-filter="co-book">CO Book</button>
             <button class="filter-btn" data-filter="nh">NH</button>
             <button class="filter-btn" data-filter="vt">VT</button>
             <button class="filter-btn" data-filter="me">ME</button>
             <button class="filter-btn" data-filter="ny">NY</button>
             <button class="filter-btn" data-filter="ma">MA</button>
             <button class="filter-btn" data-filter="pa">PA</button>
+            <button class="filter-btn" data-filter="co">CO</button>
         </div>
 
         <div style="text-align:center;margin-bottom:20px;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -1426,7 +1456,7 @@
     </div>
 
     <footer>
-        <p>Data sources: <a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a> by David Goodman | <a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a></p>
+        <p>Data sources: <a href="https://bestbackcountryskiing.com/" target="_blank">Best Backcountry Skiing in the Northeast</a> by David Goodman | <a href="https://granitebackcountryalliance.org/" target="_blank">Granite Backcountry Alliance</a> | <a href="https://14erskiers.com/blog/backcountry-ski-snowboard-routes-colorado/" target="_blank">Backcountry Ski &amp; Snowboard Routes: Colorado</a> by Brittany &amp; Frank Konsella</p>
         <p style="margin-top: 10px;">Weather data from <a href="https://open-meteo.com/" target="_blank">Open-Meteo API</a> | Snow depth from <a href="https://www.nohrsc.noaa.gov/nsa/" target="_blank">NOAA National Snow Analysis</a></p>
         <p style="margin-top: 15px; font-size: 0.8rem;">Snow depth is from NOAA's daily snow analysis (observed + modeled at 1km resolution) and may not exactly match trail conditions. Always check local reports and avalanche forecasts before heading out.</p>
     </footer>
@@ -1571,7 +1601,79 @@
             { id: 60, name: "Doublehead CCC Trail", state: "NH", region: "Jackson", lat: 44.1317, lon: -71.1103, elevation: 3053, vertical: 1573, maxPitch: 28, difficulty: "moderate", source: ["gba"], address: "Jackson, NH" },
             { id: 61, name: "Black Mountain CCC Trail", state: "NH", region: "Jackson", lat: 44.0667, lon: -71.1500, elevation: 2747, vertical: 1527, maxPitch: 28, difficulty: "moderate", source: ["gba"], address: "Jackson, NH" },
             { id: 62, name: "John Sherburne Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2572, lon: -71.2533, elevation: 3950, vertical: 1918, maxPitch: 32, difficulty: "difficult", source: ["gba"], address: "Pinkham Notch, NH" },
-            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, maxPitch: 38, difficulty: "expert", source: ["gba"], address: "Pinkham Notch, NH" }
+            { id: 63, name: "Gulf of Slides Ski Trail", state: "NH", region: "Pinkham Notch", lat: 44.2567, lon: -71.2553, elevation: 3900, vertical: 1868, maxPitch: 38, difficulty: "expert", source: ["gba"], address: "Pinkham Notch, NH" },
+
+            // COLORADO - Backcountry Ski & Snowboard Routes (Konsella)
+            // Front Range
+            { id: 100, name: "Berthoud Pass - Current Creek", state: "CO", region: "Front Range", lat: 39.7983, lon: -105.7775, elevation: 12500, vertical: 2000, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 101, name: "Berthoud Pass - Mine Chutes", state: "CO", region: "Front Range", lat: 39.7950, lon: -105.7740, elevation: 12200, vertical: 1700, maxPitch: 42, difficulty: "expert", source: ["co-book"] },
+            { id: 102, name: "Berthoud Pass - Floral Park", state: "CO", region: "Front Range", lat: 39.8050, lon: -105.7710, elevation: 12000, vertical: 1500, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 103, name: "Loveland Pass - East Side", state: "CO", region: "Front Range", lat: 39.6636, lon: -105.8786, elevation: 13000, vertical: 2300, maxPitch: 40, difficulty: "expert", source: ["co-book"] },
+            { id: 104, name: "Loveland Pass - Porcupine Gulch", state: "CO", region: "Front Range", lat: 39.6600, lon: -105.8900, elevation: 12900, vertical: 2200, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 105, name: "Grays Peak", state: "CO", region: "Front Range", lat: 39.6339, lon: -105.8177, elevation: 14270, vertical: 3600, maxPitch: 40, difficulty: "expert", source: ["co-book"] },
+            { id: 106, name: "Torreys Peak", state: "CO", region: "Front Range", lat: 39.6436, lon: -105.8211, elevation: 14267, vertical: 3500, maxPitch: 42, difficulty: "expert", source: ["co-book"] },
+            { id: 107, name: "James Peak", state: "CO", region: "Front Range", lat: 39.7944, lon: -105.6608, elevation: 13294, vertical: 3000, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 108, name: "Mt. Sniktau", state: "CO", region: "Front Range", lat: 39.6611, lon: -105.8575, elevation: 13234, vertical: 1200, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 109, name: "Jones Pass", state: "CO", region: "Front Range", lat: 39.7600, lon: -105.7400, elevation: 12451, vertical: 2000, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+
+            // Tenmile / Mosquito Range
+            { id: 110, name: "Quandary Peak - East Bowl", state: "CO", region: "Tenmile Range", lat: 39.3972, lon: -106.1064, elevation: 14265, vertical: 3400, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 111, name: "Quandary Peak - Cristo Couloir", state: "CO", region: "Tenmile Range", lat: 39.3972, lon: -106.1064, elevation: 14265, vertical: 3400, maxPitch: 45, difficulty: "expert", source: ["co-book"] },
+            { id: 112, name: "Peak 10 - North Couloir", state: "CO", region: "Tenmile Range", lat: 39.5003, lon: -106.1625, elevation: 13633, vertical: 2800, maxPitch: 45, difficulty: "expert", source: ["co-book"] },
+            { id: 113, name: "Pacific Peak", state: "CO", region: "Tenmile Range", lat: 39.4042, lon: -106.1536, elevation: 13950, vertical: 3100, maxPitch: 40, difficulty: "expert", source: ["co-book"] },
+
+            // Gore Range
+            { id: 114, name: "Vail Pass - Bowls", state: "CO", region: "Gore Range", lat: 39.5317, lon: -106.2153, elevation: 11500, vertical: 1600, maxPitch: 30, difficulty: "moderate", source: ["co-book"] },
+            { id: 115, name: "Mt. Powell", state: "CO", region: "Gore Range", lat: 39.7600, lon: -106.3408, elevation: 13534, vertical: 4000, maxPitch: 42, difficulty: "expert", source: ["co-book"] },
+            { id: 116, name: "Red Peak", state: "CO", region: "Gore Range", lat: 39.6200, lon: -106.3050, elevation: 13189, vertical: 3600, maxPitch: 44, difficulty: "expert", source: ["co-book"] },
+
+            // Park Range / Steamboat
+            { id: 117, name: "Rabbit Ears Pass", state: "CO", region: "Park Range", lat: 40.3800, lon: -106.6050, elevation: 10500, vertical: 1200, maxPitch: 22, difficulty: "moderate", source: ["co-book"] },
+            { id: 118, name: "Buffalo Pass", state: "CO", region: "Park Range", lat: 40.5600, lon: -106.6700, elevation: 10800, vertical: 1500, maxPitch: 25, difficulty: "moderate", source: ["co-book"] },
+            { id: 119, name: "Mt. Zirkel", state: "CO", region: "Park Range", lat: 40.7100, lon: -106.7800, elevation: 12180, vertical: 3200, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+
+            // Elk Mountains / Crested Butte
+            { id: 120, name: "Mt. Crested Butte - Headwall", state: "CO", region: "Elk Mountains", lat: 38.8900, lon: -106.9600, elevation: 12162, vertical: 2800, maxPitch: 48, difficulty: "extreme", source: ["co-book"] },
+            { id: 121, name: "Gothic Mountain", state: "CO", region: "Elk Mountains", lat: 38.9567, lon: -107.0117, elevation: 12625, vertical: 3800, maxPitch: 45, difficulty: "expert", source: ["co-book"] },
+            { id: 122, name: "Mt. Emmons - Red Lady Bowl", state: "CO", region: "Elk Mountains", lat: 38.8750, lon: -107.0500, elevation: 12392, vertical: 3100, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 123, name: "Snodgrass Mountain", state: "CO", region: "Elk Mountains", lat: 38.9100, lon: -107.0000, elevation: 10990, vertical: 1900, maxPitch: 25, difficulty: "moderate", source: ["co-book"] },
+            { id: 124, name: "Purple Peak", state: "CO", region: "Elk Mountains", lat: 38.9800, lon: -107.0700, elevation: 12958, vertical: 3200, maxPitch: 48, difficulty: "extreme", source: ["co-book"] },
+            { id: 125, name: "Scarp's Ridge", state: "CO", region: "Elk Mountains", lat: 38.8800, lon: -107.0300, elevation: 12000, vertical: 2000, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 126, name: "Castle Peak", state: "CO", region: "Elk Mountains", lat: 39.0097, lon: -106.8614, elevation: 14265, vertical: 4100, maxPitch: 45, difficulty: "expert", source: ["co-book"] },
+            { id: 127, name: "Cathedral Peak", state: "CO", region: "Elk Mountains", lat: 39.0186, lon: -107.0042, elevation: 13943, vertical: 4400, maxPitch: 47, difficulty: "extreme", source: ["co-book"] },
+            { id: 128, name: "Capitol Peak", state: "CO", region: "Elk Mountains", lat: 39.1503, lon: -107.0833, elevation: 14130, vertical: 5300, maxPitch: 50, difficulty: "extreme", source: ["co-book"] },
+            { id: 129, name: "Pyramid Peak", state: "CO", region: "Elk Mountains", lat: 39.0714, lon: -106.9503, elevation: 14018, vertical: 4500, maxPitch: 50, difficulty: "extreme", source: ["co-book"] },
+
+            // Sawatch Range
+            { id: 130, name: "Independence Pass", state: "CO", region: "Sawatch Range", lat: 39.1075, lon: -106.5642, elevation: 12095, vertical: 1500, maxPitch: 30, difficulty: "moderate", source: ["co-book"] },
+            { id: 131, name: "Mt. Elbert - East Face", state: "CO", region: "Sawatch Range", lat: 39.1178, lon: -106.4453, elevation: 14433, vertical: 4400, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 132, name: "Mt. Massive", state: "CO", region: "Sawatch Range", lat: 39.1875, lon: -106.4756, elevation: 14421, vertical: 4200, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 133, name: "Huron Peak", state: "CO", region: "Sawatch Range", lat: 38.9453, lon: -106.4375, elevation: 14003, vertical: 3600, maxPitch: 40, difficulty: "expert", source: ["co-book"] },
+            { id: 134, name: "La Plata Peak", state: "CO", region: "Sawatch Range", lat: 39.0294, lon: -106.4731, elevation: 14336, vertical: 4500, maxPitch: 42, difficulty: "expert", source: ["co-book"] },
+
+            // Sangre de Cristo Range
+            { id: 135, name: "Blanca Peak", state: "CO", region: "Sangre de Cristos", lat: 37.5775, lon: -105.4856, elevation: 14345, vertical: 5500, maxPitch: 45, difficulty: "expert", source: ["co-book"] },
+            { id: 136, name: "Crestone Needle", state: "CO", region: "Sangre de Cristos", lat: 37.9647, lon: -105.5767, elevation: 14197, vertical: 4400, maxPitch: 50, difficulty: "extreme", source: ["co-book"] },
+            { id: 137, name: "Kit Carson Peak", state: "CO", region: "Sangre de Cristos", lat: 37.9797, lon: -105.6025, elevation: 14165, vertical: 4300, maxPitch: 48, difficulty: "extreme", source: ["co-book"] },
+
+            // San Juan Range
+            { id: 138, name: "Red Mountain Pass", state: "CO", region: "San Juans", lat: 37.8975, lon: -107.7136, elevation: 11018, vertical: 2500, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 139, name: "Ophir Pass", state: "CO", region: "San Juans", lat: 37.8500, lon: -107.7800, elevation: 11789, vertical: 2200, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 140, name: "Mt. Sneffels", state: "CO", region: "San Juans", lat: 38.0036, lon: -107.7925, elevation: 14150, vertical: 4300, maxPitch: 48, difficulty: "extreme", source: ["co-book"] },
+            { id: 141, name: "Handies Peak", state: "CO", region: "San Juans", lat: 37.9131, lon: -107.5044, elevation: 14048, vertical: 3200, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 142, name: "Sunshine Peak", state: "CO", region: "San Juans", lat: 37.9228, lon: -107.4258, elevation: 14001, vertical: 3000, maxPitch: 38, difficulty: "difficult", source: ["co-book"] },
+            { id: 143, name: "San Luis Peak", state: "CO", region: "San Juans", lat: 37.9869, lon: -106.9311, elevation: 14014, vertical: 3200, maxPitch: 30, difficulty: "moderate", source: ["co-book"] },
+            { id: 144, name: "Sultan Mountain", state: "CO", region: "San Juans", lat: 37.7725, lon: -107.6808, elevation: 13368, vertical: 3900, maxPitch: 42, difficulty: "expert", source: ["co-book"] },
+            { id: 145, name: "Lizard Head Pass", state: "CO", region: "San Juans", lat: 37.8044, lon: -107.9150, elevation: 10222, vertical: 1800, maxPitch: 30, difficulty: "moderate", source: ["co-book"] },
+
+            // Flat Tops / Grand Mesa
+            { id: 146, name: "Flat Tops - Trappers Lake", state: "CO", region: "Flat Tops", lat: 39.9950, lon: -107.2350, elevation: 11500, vertical: 1500, maxPitch: 25, difficulty: "moderate", source: ["co-book"] },
+            { id: 147, name: "Grand Mesa", state: "CO", region: "Grand Mesa", lat: 39.0500, lon: -108.0600, elevation: 10800, vertical: 1200, maxPitch: 22, difficulty: "easy", source: ["co-book"] },
+
+            // Cameron Pass area
+            { id: 148, name: "Cameron Pass - Diamond Peaks", state: "CO", region: "Park Range", lat: 40.5200, lon: -105.8900, elevation: 11852, vertical: 1900, maxPitch: 35, difficulty: "difficult", source: ["co-book"] },
+            { id: 149, name: "Cameron Pass - Nokhu Crags", state: "CO", region: "Park Range", lat: 40.5250, lon: -105.9050, elevation: 12485, vertical: 2500, maxPitch: 48, difficulty: "extreme", source: ["co-book"] },
+            { id: 150, name: "Clark Peak", state: "CO", region: "Park Range", lat: 40.5500, lon: -105.8700, elevation: 12951, vertical: 2900, maxPitch: 40, difficulty: "expert", source: ["co-book"] }
         ];
 
         // ==================== STATE ====================
@@ -2071,7 +2173,7 @@
             }
 
             const badges = [];
-            const sourceLabels = { book: 'Book', gba: 'GBA', ikon: 'Ikon', epic: 'Epic', indy: 'Indy' };
+            const sourceLabels = { book: 'Book', gba: 'GBA', ikon: 'Ikon', epic: 'Epic', indy: 'Indy', 'co-book': 'CO Book' };
             tour.source.forEach(s => {
                 badges.push(`<span class="tour-badge ${s}">${sourceLabels[s] || s}</span>`);
             });
@@ -2122,10 +2224,11 @@
 
             const stateNames = {
                 'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
-                'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania'
+                'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania',
+                'CO': 'Colorado'
             };
 
-            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA', 'PA']) {
+            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA', 'PA', 'CO']) {
                 if (!stateGroups[state]) continue;
 
                 const section = document.createElement('div');
@@ -2473,7 +2576,7 @@
         }
 
         // ==================== FILTERING & SORTING ====================
-        const stateFilters = ['nh', 'vt', 'me', 'ny', 'ma', 'pa'];
+        const stateFilters = ['nh', 'vt', 'me', 'ny', 'ma', 'pa', 'co'];
 
         function getActiveFilters() {
             const active = Array.from(document.querySelectorAll('.filter-btn.active')).map(b => b.dataset.filter);
