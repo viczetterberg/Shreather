@@ -372,6 +372,77 @@
         .tour-card .favorite-btn.favorited { opacity: 1; color: var(--accent-yellow); }
         .tour-card .favorite-btn:hover { opacity: 1; }
 
+        /* Browse card compact style */
+        .tour-card.browse-card {
+            padding: 14px 16px;
+            cursor: default;
+        }
+        .tour-card.browse-card .tour-header {
+            margin-bottom: 0;
+            padding-right: 40px;
+        }
+        .tour-card.browse-card .click-hint { display: none; }
+
+        .add-tour-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            background: none;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            line-height: 1;
+            padding: 0;
+        }
+        .add-tour-btn:hover {
+            background: rgba(74, 144, 217, 0.15);
+        }
+        .add-tour-btn.added {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(90, 154, 110, 0.12);
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .welcome-message h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .welcome-message p {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+        .welcome-message button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 100px;
+            background: var(--accent-blue);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+        .welcome-message button:hover {
+            opacity: 0.85;
+        }
+
         .tour-header {
             margin-bottom: 14px;
             padding-right: 30px;
@@ -1358,9 +1429,10 @@
     <div class="container">
         <header>
             <div class="header-controls">
-                <button class="icon-btn" id="favorites-toggle" title="Show favorites only">
-                    <span>&#9733;</span>
-                </button>
+                <div class="view-toggle" id="mode-toggle">
+                    <button class="view-toggle-btn mode-btn active" data-mode="my-tours">My Tours</button>
+                    <button class="view-toggle-btn mode-btn" data-mode="browse">Browse</button>
+                </div>
                 <button class="icon-btn" id="theme-toggle" title="Toggle dark/light mode">
                     <span id="theme-icon">&#9788;</span>
                 </button>
@@ -1370,7 +1442,7 @@
             <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-value" id="total-tours">0</div>
-                    <div class="stat-label">Total Tours</div>
+                    <div class="stat-label" id="total-tours-label">My Tours</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="snow-tours">0</div>
@@ -1418,7 +1490,7 @@
                 <button class="view-toggle-btn active" id="card-view-btn">Cards</button>
                 <button class="view-toggle-btn" id="map-view-btn">Map</button>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <div id="optimism-wrapper" style="display:flex;flex-direction:column;align-items:center;gap:3px;">
                 <span style="font-size:0.65rem;color:var(--text-muted);font-weight:500;letter-spacing:0.05em;text-transform:uppercase;">Optimism</span>
                 <div class="view-toggle" id="optimism-toggle">
                     <button class="view-toggle-btn optimism-btn" data-level="low" title="Lowest model prediction">:(</button>
@@ -1708,7 +1780,7 @@
         const tourWeatherData = new Map();
         const CACHE_DURATION = 15 * 60 * 1000;
         let favorites = JSON.parse(localStorage.getItem('backcountry-favorites') || '[]');
-        let showFavoritesOnly = false;
+        let currentMode = 'my-tours';
         let currentTheme = localStorage.getItem('backcountry-theme') || 'dark';
         let map = null;
         let mapMarkers = [];
@@ -2297,25 +2369,111 @@
             return card;
         }
 
-        async function renderTours() {
+        function renderBrowseCard(tour) {
+            const isAdded = favorites.includes(tour.id);
+            const card = document.createElement('div');
+            card.className = 'tour-card browse-card';
+            card.dataset.id = tour.id;
+            card.dataset.state = tour.state.toLowerCase();
+            card.dataset.source = tour.source.join(',');
+            card.dataset.name = tour.name.toLowerCase();
+            card.dataset.elevation = tour.elevation;
+            card.dataset.snowDepth = 0;
+            card.dataset.forecast = 0;
+
+            const badges = [];
+            const bcSources = ['ne-bc', 'co-bc'];
+            if (tour.source.some(s => bcSources.includes(s))) {
+                badges.push(`<span class="tour-badge backcountry">Backcountry</span>`);
+            }
+            const passLabels = { ikon: 'Ikon', epic: 'Epic', indy: 'Indy' };
+            tour.source.forEach(s => {
+                if (passLabels[s]) badges.push(`<span class="tour-badge ${s}">${passLabels[s]}</span>`);
+            });
+            if (tour.difficulty) {
+                const diffLabels = { easy: 'Easy', moderate: 'Moderate', difficult: 'Difficult', expert: 'Expert', extreme: 'Extreme' };
+                badges.push(`<span class="tour-badge difficulty-${tour.difficulty}">${diffLabels[tour.difficulty]}</span>`);
+            }
+            badges.push(`<span class="tour-badge elevation">${tour.elevation.toLocaleString()} ft</span>`);
+            if (tour.vertical) badges.push(`<span class="tour-badge vertical">${tour.vertical.toLocaleString()} ft vert</span>`);
+            if (tour.maxPitch) badges.push(`<span class="tour-badge pitch">${tour.maxPitch}°</span>`);
+
+            card.innerHTML = `
+                <button class="add-tour-btn ${isAdded ? 'added' : ''}" onclick="toggleBrowseFavorite(event, ${tour.id})">
+                    ${isAdded ? '&#10003;' : '+'}
+                </button>
+                <div class="tour-header">
+                    <div class="tour-name">${tour.name}</div>
+                    <div class="tour-location">${tour.region}, ${tour.state}</div>
+                    <div class="tour-meta">${badges.join('')}</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function fetchWeatherForTour(tour, card) {
+            return Promise.all([
+                fetchWeather(tour.lat, tour.lon, tour.elevation),
+                fetchSnowDepthNOHRSC(tour.lat, tour.lon)
+            ]).then(([weather, nohrscData]) => {
+                const processed = processWeatherData(weather, nohrscData);
+                if (processed) {
+                    tourWeatherData.set(tour.id, processed);
+                    if (currentMode === 'my-tours') {
+                        const oldCard = document.querySelector(`.tour-card[data-id="${tour.id}"]`);
+                        if (oldCard && !oldCard.classList.contains('browse-card')) {
+                            const newCard = renderTourCard(tour);
+                            oldCard.replaceWith(newCard);
+                        }
+                    }
+                    updateStats();
+                    if (currentView === 'map') updateMapMarkers();
+                }
+            });
+        }
+
+        const stateNames = {
+            'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
+            'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania',
+            'CO': 'Colorado'
+        };
+        const stateOrder = ['NH', 'VT', 'ME', 'NY', 'MA', 'PA', 'CO'];
+
+        function renderView() {
+            if (currentMode === 'my-tours') {
+                renderMyTours();
+            } else {
+                renderBrowseAll();
+            }
+        }
+
+        function renderMyTours() {
             const container = document.getElementById('tours-container');
             container.innerHTML = '';
 
+            const myTours = tours.filter(t => favorites.includes(t.id));
+
+            if (myTours.length === 0) {
+                container.innerHTML = `
+                    <div class="welcome-message">
+                        <h2>Welcome to Shreather</h2>
+                        <p>Add tours to see their weather forecasts here.</p>
+                        <button onclick="switchMode('browse')">Browse Tours</button>
+                    </div>
+                `;
+                document.getElementById('update-time').textContent = new Date().toLocaleString();
+                updateStats();
+                return;
+            }
+
             const stateGroups = {};
-            tours.forEach(tour => {
+            myTours.forEach(tour => {
                 if (!stateGroups[tour.state]) stateGroups[tour.state] = [];
                 stateGroups[tour.state].push(tour);
             });
 
-            const stateNames = {
-                'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
-                'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania',
-                'CO': 'Colorado'
-            };
-
-            for (const state of ['NH', 'VT', 'ME', 'NY', 'MA', 'PA', 'CO']) {
+            for (const state of stateOrder) {
                 if (!stateGroups[state]) continue;
-
                 const section = document.createElement('div');
                 section.className = 'state-section';
                 section.dataset.state = state.toLowerCase();
@@ -2331,21 +2489,7 @@
                 for (const tour of stateGroups[state]) {
                     const card = renderTourCard(tour);
                     grid.appendChild(card);
-
-                    // Fetch weather + NOHRSC snow depth async
-                    Promise.all([
-                        fetchWeather(tour.lat, tour.lon, tour.elevation),
-                        fetchSnowDepthNOHRSC(tour.lat, tour.lon)
-                    ]).then(([weather, nohrscData]) => {
-                        const processed = processWeatherData(weather, nohrscData);
-                        if (processed) {
-                            tourWeatherData.set(tour.id, processed);
-                            const newCard = renderTourCard(tour);
-                            card.replaceWith(newCard);
-                            updateStats();
-                            if (currentView === 'map') updateMapMarkers();
-                        }
-                    });
+                    fetchWeatherForTour(tour, card);
                 }
 
                 section.appendChild(grid);
@@ -2353,8 +2497,43 @@
             }
 
             document.getElementById('update-time').textContent = new Date().toLocaleString();
-            document.getElementById('total-tours').textContent = tours.length;
-            updateFavoritesCount();
+            updateStats();
+        }
+
+        function renderBrowseAll() {
+            const container = document.getElementById('tours-container');
+            container.innerHTML = '';
+
+            const stateGroups = {};
+            tours.forEach(tour => {
+                if (!stateGroups[tour.state]) stateGroups[tour.state] = [];
+                stateGroups[tour.state].push(tour);
+            });
+
+            for (const state of stateOrder) {
+                if (!stateGroups[state]) continue;
+                const section = document.createElement('div');
+                section.className = 'state-section';
+                section.dataset.state = state.toLowerCase();
+
+                const title = document.createElement('h2');
+                title.className = 'section-title';
+                title.innerHTML = `${stateNames[state]} <span style="font-size: 0.9rem; color: var(--text-muted);">(${stateGroups[state].length})</span>`;
+                section.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'tours-grid';
+
+                for (const tour of stateGroups[state]) {
+                    grid.appendChild(renderBrowseCard(tour));
+                }
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            }
+
+            document.getElementById('update-time').textContent = new Date().toLocaleString();
+            updateStats();
         }
 
         // ==================== MODAL ====================
@@ -2368,7 +2547,9 @@
             let bodyHtml = '';
 
             if (!weather) {
-                bodyHtml = '<div class="loading">Loading weather data...</div>';
+                bodyHtml = currentMode === 'browse'
+                    ? '<div class="loading">Add to My Tours to see weather data</div>'
+                    : '<div class="loading">Loading weather data...</div>';
             } else {
                 // Current Conditions
                 bodyHtml += `
@@ -2653,7 +2834,54 @@
             btn.innerHTML = favorites.includes(id) ? '&#9733;' : '&#9734;';
 
             updateFavoritesCount();
-            if (showFavoritesOnly) applyFilters();
+            if (currentMode === 'my-tours') renderView();
+        }
+
+        function toggleBrowseFavorite(event, id) {
+            event.stopPropagation();
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+                // Start fetching weather in background
+                const tour = tours.find(t => t.id === id);
+                if (tour) fetchWeatherForTour(tour, null);
+            }
+            localStorage.setItem('backcountry-favorites', JSON.stringify(favorites));
+
+            // Update button in-place
+            const btn = event.target.closest ? event.target.closest('.add-tour-btn') || event.target : event.target;
+            const isNowFavorite = favorites.includes(id);
+            btn.classList.toggle('added', isNowFavorite);
+            btn.innerHTML = isNowFavorite ? '&#10003;' : '+';
+
+            updateFavoritesCount();
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.mode === mode);
+            });
+
+            // Hide optimism toggle in browse mode
+            const optimismWrapper = document.getElementById('optimism-wrapper');
+            if (optimismWrapper) optimismWrapper.style.display = mode === 'browse' ? 'none' : '';
+
+            // Disable weather-dependent sort options in browse mode
+            const sortSelect = document.getElementById('sort-select');
+            sortSelect.querySelectorAll('option').forEach(opt => {
+                if (['snow-desc', 'snow-asc', 'forecast'].includes(opt.value)) {
+                    opt.disabled = mode === 'browse';
+                }
+            });
+            if (mode === 'browse' && ['snow-desc', 'snow-asc', 'forecast'].includes(sortSelect.value)) {
+                sortSelect.value = 'name';
+            }
+
+            renderView();
+            applyFilters();
         }
 
         function updateFavoritesCount() {
@@ -2683,16 +2911,9 @@
 
             document.querySelectorAll('.tour-card').forEach(card => {
                 let show = true;
-                const id = parseInt(card.dataset.id);
 
-                if (showFavoritesOnly && !favorites.includes(id)) {
-                    show = false;
-                }
-
-                if (show) {
-                    const sources = card.dataset.source.split(',');
-                    show = matchesFilters(activeFilters, card.dataset.state, sources);
-                }
+                const sources = card.dataset.source.split(',');
+                show = matchesFilters(activeFilters, card.dataset.state, sources);
 
                 if (show && searchTerm) {
                     show = card.dataset.name.includes(searchTerm);
@@ -2752,7 +2973,8 @@
         // ==================== REPROCESS ON OPTIMISM CHANGE ====================
         function reprocessAllWeather() {
             // Re-merge raw data with new optimism level, reprocess, and re-render cards
-            for (const tour of tours) {
+            const toursToProcess = tours.filter(t => favorites.includes(t.id));
+            for (const tour of toursToProcess) {
                 const cacheKey = `${tour.lat.toFixed(2)},${tour.lon.toFixed(2)}`;
                 const rawEntry = rawWeatherCache.get(cacheKey);
                 if (!rawEntry) continue;
@@ -2778,11 +3000,27 @@
         function updateStats() {
             let withSnow = 0;
             let bestDepth = 0;
+            const label = document.getElementById('total-tours-label');
 
-            tourWeatherData.forEach(weather => {
-                if (weather.current.snowDepth > 0) withSnow++;
-                if (weather.current.snowDepth > bestDepth) bestDepth = weather.current.snowDepth;
-            });
+            if (currentMode === 'my-tours') {
+                document.getElementById('total-tours').textContent = favorites.length;
+                if (label) label.textContent = 'My Tours';
+                // Stats scoped to favorites
+                favorites.forEach(id => {
+                    const weather = tourWeatherData.get(id);
+                    if (weather) {
+                        if (weather.current.snowDepth > 0) withSnow++;
+                        if (weather.current.snowDepth > bestDepth) bestDepth = weather.current.snowDepth;
+                    }
+                });
+            } else {
+                document.getElementById('total-tours').textContent = tours.length;
+                if (label) label.textContent = 'All Tours';
+                tourWeatherData.forEach(weather => {
+                    if (weather.current.snowDepth > 0) withSnow++;
+                    if (weather.current.snowDepth > bestDepth) bestDepth = weather.current.snowDepth;
+                });
+            }
 
             document.getElementById('snow-tours').textContent = withSnow;
             document.getElementById('best-snow').textContent = bestDepth + '"';
@@ -2809,7 +3047,7 @@
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
             const visibleTours = tours.filter(tour => {
-                if (showFavoritesOnly && !favorites.includes(tour.id)) return false;
+                if (!favorites.includes(tour.id)) return false;
                 if (!matchesFilters(activeFilters, tour.state.toLowerCase(), tour.source)) return false;
                 if (searchTerm && !tour.name.toLowerCase().includes(searchTerm)) return false;
                 return true;
@@ -2929,7 +3167,7 @@
             setTheme(currentTheme);
 
             // Render tours
-            renderTours();
+            renderView();
 
             // Filter buttons (multi-select)
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -2964,11 +3202,9 @@
                 setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
 
-            // Favorites toggle
-            document.getElementById('favorites-toggle').addEventListener('click', () => {
-                showFavoritesOnly = !showFavoritesOnly;
-                document.getElementById('favorites-toggle').classList.toggle('active', showFavoritesOnly);
-                applyFilters();
+            // Mode toggle (My Tours / Browse)
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchMode(btn.dataset.mode));
             });
 
             // View toggle
@@ -3038,9 +3274,7 @@
             // Handle URL params for shortcuts
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('filter') === 'favorites') {
-                showFavoritesOnly = true;
-                document.getElementById('favorites-toggle').classList.add('active');
-                applyFilters();
+                // Already in my-tours mode by default
             }
 
             // Show iOS install prompt if appropriate
@@ -3050,7 +3284,7 @@
         // Handle online/offline status
         window.addEventListener('online', () => {
             document.body.classList.remove('offline');
-            renderTours(); // Refresh data when back online
+            renderView(); // Refresh data when back online
         });
 
         window.addEventListener('offline', () => {
