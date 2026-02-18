@@ -1483,6 +1483,7 @@
             <button class="filter-btn" data-filter="ma">MA</button>
             <button class="filter-btn" data-filter="pa">PA</button>
             <button class="filter-btn" data-filter="co">CO</button>
+            <button class="filter-btn" data-filter="ut">UT</button>
         </div>
 
         <div style="text-align:center;margin-bottom:20px;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -1771,7 +1772,27 @@
             { id: 223, name: "Granby Ranch", state: "CO", region: "Front Range", lat: 40.0289, lon: -105.9347, elevation: 9202, vertical: 1000, maxPitch: 22, difficulty: "easy", source: ["indy"] },
             { id: 224, name: "Echo Mountain", state: "CO", region: "Front Range", lat: 39.6850, lon: -105.5283, elevation: 10650, vertical: 600, maxPitch: 25, difficulty: "easy", source: ["indy"] },
             { id: 225, name: "Howelsen Hill", state: "CO", region: "Park Range", lat: 40.4847, lon: -106.8372, elevation: 7136, vertical: 440, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
-            { id: 226, name: "Cuchara Mountain", state: "CO", region: "Sangre de Cristos", lat: 37.3350, lon: -105.1050, elevation: 10810, vertical: 1562, maxPitch: 30, difficulty: "moderate", source: ["indy"] }
+            { id: 226, name: "Cuchara Mountain", state: "CO", region: "Sangre de Cristos", lat: 37.3350, lon: -105.1050, elevation: 10810, vertical: 1562, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+
+            // UTAH - Ikon Resorts
+            { id: 300, name: "Deer Valley", state: "UT", region: "Wasatch Range", lat: 40.6374, lon: -111.4783, elevation: 9570, vertical: 3000, maxPitch: 35, difficulty: "difficult", source: ["ikon"] },
+            { id: 301, name: "Alta", state: "UT", region: "Wasatch Range", lat: 40.5884, lon: -111.6386, elevation: 10550, vertical: 2020, maxPitch: 40, difficulty: "expert", source: ["ikon"] },
+            { id: 302, name: "Snowbird", state: "UT", region: "Wasatch Range", lat: 40.5830, lon: -111.6508, elevation: 11000, vertical: 3240, maxPitch: 42, difficulty: "expert", source: ["ikon"] },
+            { id: 303, name: "Brighton", state: "UT", region: "Wasatch Range", lat: 40.5980, lon: -111.5833, elevation: 10500, vertical: 1875, maxPitch: 38, difficulty: "difficult", source: ["ikon"] },
+            { id: 304, name: "Solitude", state: "UT", region: "Wasatch Range", lat: 40.6199, lon: -111.5919, elevation: 10035, vertical: 2047, maxPitch: 38, difficulty: "difficult", source: ["ikon"] },
+
+            // UTAH - Epic Resorts
+            { id: 310, name: "Park City Mountain", state: "UT", region: "Wasatch Range", lat: 40.6514, lon: -111.5080, elevation: 10026, vertical: 3226, maxPitch: 38, difficulty: "difficult", source: ["epic"] },
+
+            // UTAH - Indy Resorts
+            { id: 320, name: "Snowbasin", state: "UT", region: "Wasatch Range", lat: 41.2169, lon: -111.8569, elevation: 9350, vertical: 2959, maxPitch: 35, difficulty: "difficult", source: ["indy"] },
+            { id: 321, name: "Powder Mountain", state: "UT", region: "Wasatch Range", lat: 41.3789, lon: -111.7811, elevation: 9422, vertical: 2205, maxPitch: 38, difficulty: "difficult", source: ["indy"] },
+            { id: 322, name: "Sundance", state: "UT", region: "Wasatch Range", lat: 40.3933, lon: -111.5883, elevation: 8250, vertical: 2150, maxPitch: 32, difficulty: "moderate", source: ["indy"] },
+            { id: 323, name: "Beaver Mountain", state: "UT", region: "Bear River Range", lat: 41.9681, lon: -111.5431, elevation: 8860, vertical: 1600, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 324, name: "Brian Head", state: "UT", region: "Markagunt Plateau", lat: 37.6936, lon: -112.8500, elevation: 11307, vertical: 1707, maxPitch: 30, difficulty: "moderate", source: ["indy"] },
+            { id: 325, name: "Eagle Point", state: "UT", region: "Tushar Mountains", lat: 38.3200, lon: -112.3839, elevation: 10920, vertical: 1500, maxPitch: 35, difficulty: "difficult", source: ["indy"] },
+            { id: 326, name: "Nordic Valley", state: "UT", region: "Wasatch Range", lat: 41.3100, lon: -111.8650, elevation: 6400, vertical: 1000, maxPitch: 25, difficulty: "easy", source: ["indy"] },
+            { id: 327, name: "Cherry Peak", state: "UT", region: "Bear River Range", lat: 41.9267, lon: -111.7500, elevation: 6600, vertical: 1265, maxPitch: 28, difficulty: "moderate", source: ["indy"] }
         ];
 
         // ==================== STATE ====================
@@ -2435,9 +2456,9 @@
         const stateNames = {
             'NH': 'New Hampshire', 'VT': 'Vermont', 'ME': 'Maine',
             'NY': 'New York', 'MA': 'Massachusetts', 'PA': 'Pennsylvania',
-            'CO': 'Colorado'
+            'CO': 'Colorado', 'UT': 'Utah'
         };
-        const stateOrder = ['NH', 'VT', 'ME', 'NY', 'MA', 'PA', 'CO'];
+        const stateOrder = ['NH', 'VT', 'ME', 'NY', 'MA', 'PA', 'CO', 'UT'];
 
         function renderView() {
             if (currentMode === 'my-tours') {
@@ -2889,7 +2910,7 @@
         }
 
         // ==================== FILTERING & SORTING ====================
-        const stateFilters = ['nh', 'vt', 'me', 'ny', 'ma', 'pa', 'co'];
+        const stateFilters = ['nh', 'vt', 'me', 'ny', 'ma', 'pa', 'co', 'ut'];
 
         function getActiveFilters() {
             const active = Array.from(document.querySelectorAll('.filter-btn.active')).map(b => b.dataset.filter);
