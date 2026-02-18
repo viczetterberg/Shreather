@@ -1703,7 +1703,6 @@
         ];
 
         // ==================== STATE ====================
-        const weatherCache = new Map();
         const rawWeatherCache = new Map();
         const snowDepthCache = new Map();
         const tourWeatherData = new Map();
@@ -1791,12 +1790,41 @@
             return merged;
         }
 
+        // Throttle concurrent requests to avoid API rate limits
+        const MAX_CONCURRENT = 6;
+        let activeRequests = 0;
+        const requestQueue = [];
+
+        function throttledFetch(url) {
+            return new Promise((resolve, reject) => {
+                const execute = () => {
+                    activeRequests++;
+                    fetch(url)
+                        .then(r => { activeRequests--; processQueue(); return r; })
+                        .then(resolve)
+                        .catch(e => { activeRequests--; processQueue(); reject(e); });
+                };
+                if (activeRequests < MAX_CONCURRENT) {
+                    execute();
+                } else {
+                    requestQueue.push(execute);
+                }
+            });
+        }
+
+        function processQueue() {
+            while (requestQueue.length > 0 && activeRequests < MAX_CONCURRENT) {
+                requestQueue.shift()();
+            }
+        }
+
         async function fetchWeather(lat, lon, elevation) {
             const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
-            const cached = weatherCache.get(cacheKey);
 
-            if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-                return cached.data;
+            // If we have raw data cached, re-merge with current optimism level
+            const rawCached = rawWeatherCache.get(cacheKey);
+            if (rawCached && Date.now() - rawCached.timestamp < CACHE_DURATION) {
+                return mergeMultiModel(rawCached.raw);
             }
 
             try {
@@ -1804,13 +1832,10 @@
                 const elevParam = elevMeters ? `&elevation=${elevMeters}` : '';
                 const models = '&models=gfs_seamless,ecmwf_ifs025,gem_seamless';
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10${models}`;
-                const response = await fetch(url);
+                const response = await throttledFetch(url);
                 const raw = await response.json();
                 rawWeatherCache.set(cacheKey, { raw, timestamp: Date.now() });
-                const data = mergeMultiModel(raw);
-
-                weatherCache.set(cacheKey, { data, timestamp: Date.now() });
-                return data;
+                return mergeMultiModel(raw);
             } catch (error) {
                 console.error('Weather fetch error:', error);
                 return null;
@@ -1826,7 +1851,7 @@
 
             try {
                 const url = `https://mapservices.weather.noaa.gov/raster/rest/services/snow/NOHRSC_Snow_Analysis/MapServer/identify?geometry=${lon},${lat}&geometryType=esriGeometryPoint&sr=4326&layers=all:0&tolerance=1&mapExtent=${lon-1},${lat-1},${lon+1},${lat+1}&imageDisplay=400,400,96&returnGeometry=false&f=json`;
-                const response = await fetch(url);
+                const response = await throttledFetch(url);
                 const data = await response.json();
 
                 const imageResult = data.results && data.results.find(r => r.layerName === 'Image');
@@ -2727,13 +2752,11 @@
         // ==================== REPROCESS ON OPTIMISM CHANGE ====================
         function reprocessAllWeather() {
             // Re-merge raw data with new optimism level, reprocess, and re-render cards
-            weatherCache.clear();
             for (const tour of tours) {
                 const cacheKey = `${tour.lat.toFixed(2)},${tour.lon.toFixed(2)}`;
                 const rawEntry = rawWeatherCache.get(cacheKey);
                 if (!rawEntry) continue;
                 const data = mergeMultiModel(rawEntry.raw);
-                weatherCache.set(cacheKey, { data, timestamp: rawEntry.timestamp });
                 const nohrscKey = `nohrsc_${tour.lat.toFixed(2)},${tour.lon.toFixed(2)}`;
                 const nohrscEntry = snowDepthCache.get(nohrscKey);
                 const processed = processWeatherData(data, nohrscEntry ? nohrscEntry.data : null);
