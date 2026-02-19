@@ -1924,7 +1924,7 @@
                 const elevMeters = elevation ? Math.round(elevation * 0.3048) : '';
                 const elevParam = elevMeters ? `&elevation=${elevMeters}` : '';
                 const models = '&models=gfs_seamless,ecmwf_ifs025,gem_seamless';
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&past_days=1&forecast_days=10${models}`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&past_days=3&forecast_days=10${models}`;
                 const response = await throttledFetch(url);
                 const raw = await response.json();
                 rawWeatherCache.set(cacheKey, { raw, timestamp: Date.now() });
@@ -2056,6 +2056,9 @@
                 }
             }
 
+            const todayStr = now.toISOString().slice(0, 10);
+            const todayIndex = daily && daily.time ? daily.time.indexOf(todayStr) : 0;
+
             return {
                 current,
                 snow24h: Math.round(snow24h * 10) / 10,
@@ -2063,6 +2066,7 @@
                 snow10d: Math.round(snow10d * 10) / 10,
                 hourlyForecast,
                 dailyForecast,
+                todayIndex: todayIndex >= 0 ? todayIndex : 0,
                 allHourly
             };
         }
@@ -2089,7 +2093,7 @@
         }
 
         // ==================== UI RENDERING ====================
-        function buildForecastSparkline(dailyForecast) {
+        function buildForecastSparkline(dailyForecast, todayIndex = 0) {
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const n = dailyForecast.length;
             if (n === 0) return '';
@@ -2113,25 +2117,40 @@
             function windY(v) { return topPad + chartH - (v / maxWind) * chartH * 0.7; }
             function px(i) { return chartL + i * step; }
 
-            // Build line paths
-            let snowPts = '', rainPts = '', tempPts = '', windPts = '';
-            for (let i = 0; i < n; i++) {
-                const x = px(i);
-                snowPts += `${i === 0 ? 'M' : 'L'}${x},${precipY(dailyForecast[i].snow)} `;
-                rainPts += `${i === 0 ? 'M' : 'L'}${x},${precipY(dailyForecast[i].rain)} `;
-                tempPts += `${i === 0 ? 'M' : 'L'}${x},${tempY(temps[i])} `;
-                windPts += `${i === 0 ? 'M' : 'L'}${x},${windY(dailyForecast[i].wind)} `;
+            // Build separate past/future line paths (past includes up to todayIndex, future from todayIndex onward)
+            function buildSplitPaths(valueFn) {
+                let past = '', future = '';
+                for (let i = 0; i < n; i++) {
+                    const x = px(i);
+                    const y = valueFn(i);
+                    if (i <= todayIndex) {
+                        past += `${i === 0 ? 'M' : 'L'}${x},${y} `;
+                    }
+                    if (i >= todayIndex) {
+                        future += `${i === todayIndex ? 'M' : 'L'}${x},${y} `;
+                    }
+                }
+                return { past, future };
             }
 
-            const snowFill = `${snowPts}L${px(n-1)},${precipY(0)} L${px(0)},${precipY(0)} Z`;
+            const snowSplit = buildSplitPaths(i => precipY(dailyForecast[i].snow));
+            const rainSplit = buildSplitPaths(i => precipY(dailyForecast[i].rain));
+            const tempSplit = buildSplitPaths(i => tempY(temps[i]));
+            const windSplit = buildSplitPaths(i => windY(dailyForecast[i].wind));
+
+            // Snow fill paths (past and future separately)
+            const pastSnowFill = todayIndex > 0 ? `${snowSplit.past}L${px(todayIndex)},${precipY(0)} L${px(0)},${precipY(0)} Z` : '';
+            const futureSnowFill = `${snowSplit.future}L${px(n-1)},${precipY(0)} L${px(todayIndex)},${precipY(0)} Z`;
+
             const hasRain = dailyForecast.some(d => d.rain > 0);
 
             let svg = '';
 
             // ── Day labels ──
             for (let i = 0; i < n; i++) {
-                const dayName = i === 0 ? 'Tdy' : days[dailyForecast[i].date.getDay()];
-                svg += `<text x="${px(i)}" y="${topPad - 2}" text-anchor="middle" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--text-muted)">${dayName}</text>`;
+                const dayName = i === todayIndex ? 'Tdy' : days[dailyForecast[i].date.getDay()];
+                const opacity = i < todayIndex ? '0.3' : '1';
+                svg += `<text x="${px(i)}" y="${topPad - 2}" text-anchor="middle" font-size="5.5" font-family="var(--font)" font-weight="500" fill="var(--text-muted)" opacity="${opacity}">${dayName}</text>`;
             }
 
             // ── Left Y-axis: Temp (°F) ──
@@ -2157,28 +2176,50 @@
                 svg += `<text x="${marginL - 3}" y="${fY + 2}" text-anchor="end" font-size="4.5" font-family="var(--mono)" fill="var(--text-muted)" opacity="0.5">32°</text>`;
             }
 
-            // ── Snow fill + line ──
-            svg += `<path d="${snowFill}" fill="var(--accent-blue)" opacity="0.12"/>`;
-            svg += `<path d="${snowPts}" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-            // ── Rain line ──
-            if (hasRain) {
-                svg += `<path d="${rainPts}" fill="none" stroke="var(--accent-rain)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+            // ── Vertical separator between past and today ──
+            if (todayIndex > 0) {
+                const sepX = (px(todayIndex - 1) + px(todayIndex)) / 2;
+                svg += `<line x1="${sepX}" y1="${topPad}" x2="${sepX}" y2="${topPad + chartH}" stroke="var(--text-muted)" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.35"/>`;
             }
 
-            // ── Temp line ──
-            svg += `<path d="${tempPts}" fill="none" stroke="var(--accent-red)" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>`;
+            // ── Snow fill + line (past = faded, future = full) ──
+            if (todayIndex > 0 && pastSnowFill) {
+                svg += `<path d="${pastSnowFill}" fill="var(--accent-blue)" opacity="0.06"/>`;
+                svg += `<path d="${snowSplit.past}" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>`;
+            }
+            svg += `<path d="${futureSnowFill}" fill="var(--accent-blue)" opacity="0.12"/>`;
+            svg += `<path d="${snowSplit.future}" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
 
-            // ── Wind line ──
-            svg += `<path d="${windPts}" fill="none" stroke="var(--accent-yellow)" stroke-width="0.6" stroke-dasharray="2,2" stroke-linecap="round" opacity="0.35"/>`;
+            // ── Rain line (past = faded, future = full) ──
+            if (hasRain) {
+                if (todayIndex > 0) {
+                    svg += `<path d="${rainSplit.past}" fill="none" stroke="var(--accent-rain)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>`;
+                }
+                svg += `<path d="${rainSplit.future}" fill="none" stroke="var(--accent-rain)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>`;
+            }
+
+            // ── Temp line (past = faded, future = full) ──
+            if (todayIndex > 0) {
+                svg += `<path d="${tempSplit.past}" fill="none" stroke="var(--accent-red)" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.2"/>`;
+            }
+            svg += `<path d="${tempSplit.future}" fill="none" stroke="var(--accent-red)" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>`;
+
+            // ── Wind line (past = faded, future = full) ──
+            if (todayIndex > 0) {
+                svg += `<path d="${windSplit.past}" fill="none" stroke="var(--accent-yellow)" stroke-width="0.6" stroke-dasharray="2,2" stroke-linecap="round" opacity="0.15"/>`;
+            }
+            svg += `<path d="${windSplit.future}" fill="none" stroke="var(--accent-yellow)" stroke-width="0.6" stroke-dasharray="2,2" stroke-linecap="round" opacity="0.35"/>`;
 
             // ── Snow dots + labels ──
             for (let i = 0; i < n; i++) {
                 const x = px(i);
                 if (dailyForecast[i].snow > 0) {
                     const y = precipY(dailyForecast[i].snow);
-                    svg += `<circle cx="${x}" cy="${y}" r="2" fill="var(--accent-blue)"/>`;
-                    svg += `<text x="${x}" y="${y - 4}" text-anchor="middle" font-size="6.5" font-family="var(--mono)" font-weight="600" fill="var(--accent-blue)">${dailyForecast[i].snow}"</text>`;
+                    const isPast = i < todayIndex;
+                    const dotOpacity = isPast ? '0.35' : '1';
+                    const labelOpacity = isPast ? '0.35' : '1';
+                    svg += `<circle cx="${x}" cy="${y}" r="2" fill="var(--accent-blue)" opacity="${dotOpacity}"/>`;
+                    svg += `<text x="${x}" y="${y - 4}" text-anchor="middle" font-size="6.5" font-family="var(--mono)" font-weight="600" fill="var(--accent-blue)" opacity="${labelOpacity}">${dailyForecast[i].snow}"</text>`;
                 }
             }
 
@@ -2326,7 +2367,7 @@
                             ${sourceLabel}
                         </div>
                         <div class="weather-item">
-                            <div class="weather-label">24h Precip <span class="precip-legend"><span class="pl-snow">&#10052;</span><span class="precip-gradient-line"></span><span class="pl-rain">💧</span></span></div>
+                            <div class="weather-label">Past 24h <span class="precip-legend"><span class="pl-snow">&#10052;</span><span class="precip-gradient-line"></span><span class="pl-rain">💧</span></span></div>
                             <div class="weather-value snow">${weather.snow24h}"</div>
                         </div>
                         <div class="weather-item">
@@ -2341,7 +2382,7 @@
                 `;
 
                 if (weather.dailyForecast.length > 0) {
-                    forecastHtml = buildForecastSparkline(weather.dailyForecast);
+                    forecastHtml = buildForecastSparkline(weather.dailyForecast, weather.todayIndex);
                 }
             }
 
@@ -2588,7 +2629,7 @@
                             <div class="condition-card">
                                 <div class="condition-icon" style="color:var(--accent-blue)">${getWeatherIcon(71, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-blue);">${weather.snow24h}"</div>
-                                <div class="condition-label">24h Snowfall</div>
+                                <div class="condition-label">Past 24h Snow</div>
                             </div>
                             <div class="condition-card">
                                 <div class="condition-icon" style="color:var(--accent-red)">${getWeatherIcon(0, 22)}</div>
@@ -2603,7 +2644,7 @@
                             <div class="condition-card">
                                 <div class="condition-icon" style="color:var(--accent-rain)">${getWeatherIcon(61, 22)}</div>
                                 <div class="condition-value" style="color: var(--accent-rain);">${weather.rain24h}"</div>
-                                <div class="condition-label">24h Rain</div>
+                                <div class="condition-label">Past 24h Rain</div>
                             </div>
                             <div class="condition-card">
                                 <div class="condition-icon" style="color:var(--text-muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
