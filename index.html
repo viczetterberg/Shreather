@@ -1924,7 +1924,7 @@
                 const elevMeters = elevation ? Math.round(elevation * 0.3048) : '';
                 const elevParam = elevMeters ? `&elevation=${elevMeters}` : '';
                 const models = '&models=gfs_seamless,ecmwf_ifs025,gem_seamless';
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&forecast_days=10${models}`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}${elevParam}&hourly=temperature_2m,relative_humidity_2m,precipitation,rain,snowfall,snow_depth,visibility,windspeed_10m,windgusts_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,snowfall_sum,windspeed_10m_max,windgusts_10m_max&timezone=America/New_York&past_days=1&forecast_days=10${models}`;
                 const response = await throttledFetch(url);
                 const raw = await response.json();
                 rawWeatherCache.set(cacheKey, { raw, timestamp: Date.now() });
@@ -1995,9 +1995,9 @@
                 weatherCode: hourly.weathercode[currentIndex]
             };
 
-            // 24h totals using dynamic SLR
+            // Past 24h totals using dynamic SLR
             let snow24h = 0, rain24h = 0;
-            for (let i = currentIndex; i < Math.min(currentIndex + 24, hourly.precipitation.length); i++) {
+            for (let i = Math.max(0, currentIndex - 24); i < currentIndex; i++) {
                 snow24h += slrSnowInches(hourly.precipitation[i], hourly.rain[i], hourly.temperature_2m[i]);
                 rain24h += (hourly.rain[i] || 0);
             }
