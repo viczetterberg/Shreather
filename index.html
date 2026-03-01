@@ -2405,7 +2405,7 @@
                 badges.push(`<span class="tour-badge vertical">${tour.vertical.toLocaleString()} ft vert</span>`);
             }
             if (tour.maxPitch) {
-                badges.push(`<span class="tour-badge pitch">${tour.maxPitch}°</span>`);
+                badges.push(`<span class="tour-badge pitch">${tour.maxPitch}° max pitch</span>`);
             }
 
             card.innerHTML = `
@@ -2458,7 +2458,7 @@
             }
             badges.push(`<span class="tour-badge elevation">${tour.elevation.toLocaleString()} ft</span>`);
             if (tour.vertical) badges.push(`<span class="tour-badge vertical">${tour.vertical.toLocaleString()} ft vert</span>`);
-            if (tour.maxPitch) badges.push(`<span class="tour-badge pitch">${tour.maxPitch}°</span>`);
+            if (tour.maxPitch) badges.push(`<span class="tour-badge pitch">${tour.maxPitch}° max pitch</span>`);
 
             card.innerHTML = `
                 <button class="add-tour-btn ${isAdded ? 'added' : ''}" onclick="toggleBrowseFavorite(event, ${tour.id})">
