@@ -1430,7 +1430,7 @@
         <header>
             <div class="header-controls">
                 <div class="view-toggle" id="mode-toggle">
-                    <button class="view-toggle-btn mode-btn active" data-mode="my-tours">My Tours</button>
+                    <button class="view-toggle-btn mode-btn active" data-mode="my-tours">My Spots</button>
                     <button class="view-toggle-btn mode-btn" data-mode="browse">Browse</button>
                 </div>
                 <button class="icon-btn" id="theme-toggle" title="Toggle dark/light mode">
@@ -1442,7 +1442,7 @@
             <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-value" id="total-tours">0</div>
-                    <div class="stat-label" id="total-tours-label">My Tours</div>
+                    <div class="stat-label" id="total-tours-label">My Spots</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="snow-tours">0</div>
@@ -2610,7 +2610,7 @@
 
             if (!weather) {
                 bodyHtml = currentMode === 'browse'
-                    ? '<div class="loading">Add to My Tours to see weather data</div>'
+                    ? '<div class="loading">Add to My Spots to see weather data</div>'
                     : '<div class="loading">Loading weather data...</div>';
             } else {
                 // Current Conditions
@@ -3066,7 +3066,7 @@
 
             if (currentMode === 'my-tours') {
                 document.getElementById('total-tours').textContent = favorites.length;
-                if (label) label.textContent = 'My Tours';
+                if (label) label.textContent = 'My Spots';
                 // Stats scoped to favorites
                 favorites.forEach(id => {
                     const weather = tourWeatherData.get(id);
